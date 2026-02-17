@@ -1,0 +1,560 @@
+---
+title: "Bergmann's Rule Metric Comparison Across Species"
+editor: visual
+execute: 
+ echo: false
+ message: false
+ warning: false
+ cache: false
+format:
+  elsevier-pdf: # elsevier-pdf
+    header-includes:
+      - |
+        \usepackage{fancyhdr}
+        \pagestyle{fancy}
+        \fancyhead[R]{Short title here}
+        \usepackage{makecell}
+        \usepackage{lineno}
+        \linenumbers
+        \usepackage[margin=1in]{geometry}
+        \setlength{\LTleft}{\fill}
+        \setlength{\LTright}{\fill}
+    journal:
+      name: JOURNAL NAME
+      formatting: preprint #doubleblind suppresses authors!
+      cite-style: authoryear
+bibliography: ../Suppfiles/Morphology.bib
+metadata-files: 
+  - ../Suppfiles/abstract_keywords.yml
+  - ../Suppfiles/authors.yml
+---
+
+# To do
+
+-   Examine plots and make corrections so that they display nicely:
+
+    -   Change fig-widths and heights
+
+    -   Change x-axis label to 'beta latitude (scaled)'
+
+    -   Rotate x-axis labels 60 degrees so that they don't overlap where necessary
+
+# Abstract
+
+Bergmann's rule states that animals are larger at more northerly latitudes or cooler temperatures, reflecting thermoregulatory advantages of lower surface-area-to-volume ratios in larger bodies. Bergmann's rule has generally received support in endotherms, but the morphological metric used to approximate body size can influence the conclusions reached. Body size is inherently multidimensional, and no single measurement universally captures biologically relevant size variation. Furthermore, several derived metrics have been used, such as principal components scores or ratios approximating surface-area-to-volume. Here we explore these ideas using three nightjar species (*Antrostomus vociferus, Chordeiles minor, and Caprimulgus europaeus*) as a case study. Past research shows that all three species follow Bergmann's rule when body size is approximated using mass and wing chord, but this has never been tested using other morphological measurements. We evaluate whether conclusions vary depending on the approximation of body size used (linear traits such as tail length, or derived indices such as PCA-based size axes and surface-area-to-volume ratios) and whether patterns differ when conditioning on sex or age. Overall, all species exhibited positive size–latitude relationships, although the magnitude of adherence varied between measurements. Conclusions were generally robust to metric choice, although exceptions included tail length in *Chordeiles minor* and surface-area-to-volume ratios in *Antrostomus vociferus* when conditioning on sex. We discuss the biological interpretability, statistical behavior, and limitations of alternative body size metrics in tests of Bergmann’s rule.
+
+{{< pagebreak >}}
+
+# Introduction
+
+Understanding how organismal size and morphology vary across environmental gradients is central to ecological, evolutionary, and conservation research. Bergmann’s rule predicts larger body sizes at higher latitudes or cooler temperatures, reflecting thermoregulatory advantages of reduced surface-area-to-volume ratios in larger organisms. Although many studies report support for this pattern in endotherms, conclusions often depend on the morphological metric used as a proxy for body size, and no universal metric captures all biologically relevant dimensions of size. Indeed, results can vary depending on whether body size is approximated using mass, linear measurements, or derived indices [e.g. @baileyUsingDifferentBody2020].
+
+Interpreting size–environment relationships is further complicated by the fact that morphological traits are shaped by multiple selective pressures acting simultaneously. In birds, traits commonly used as proxies for body size are under strong selection not only for thermoregulation, but also for locomotion, foraging, communication, and reproduction, such that life-history demands can constrain how morphology responds to temperature gradients. Traits experiencing particularly strong functional selection may therefore adhere weakly, inconsistently, or not at all to biogeographical rules such as Bergmann’s rule. Because the strength and direction of these selective pressures vary among species, reliance on a single size metric risks obscuring biologically meaningful patterns. Using multiple metrics and examining both their relationships with environmental predictors and their covariance within species provides a more complete view of morphology–environment dynamics.
+
+Body size metrics used in ecological studies generally fall into three broad categories: linear traits, volumetric traits, and derived traits. Linear measurements such as wing length, tarsus length, or tail length reflect specific structural components of the body plan and are often relatively fixed once growth is complete. Volumetric traits, most commonly body mass, integrate overall body size but can vary over short timescales in response to condition, resource availability, and life-history stage ['flexible' traits sensu @gibsonMigratoryShorebirdAdheres2019]. Derived traits combine multiple measurements to approximate composite axes of size or shape, most notably through principal components analysis (PCA), where size is represented as a linear combination of correlated morphological variables, or through ratios intended to approximate biologically relevant properties such as surface-area-to-volume relationships.
+
+Beyond metric choice, inference about the effect of latitude or temperature on body size depends critically on model specification and covariate inclusion. In many studies, covariates are added to improve model fit or predictive performance, yet their role in estimating the causal effect of interest is rarely made explicit. Including relevant covariates can increase precision by explaining unexplained variation in body size, thereby improving the signal-to-noise ratio of estimated effects. More importantly, covariates may be necessary to reduce bias when they act as confounders of the relationship between latitude and morphology. At the same time, inappropriate adjustment can introduce bias rather than remove it, underscoring the need for causal reasoning when specifying models. Conceptual frameworks such as directed acyclic graphs (DAGs) provide a useful tool for identifying appropriate adjustment sets and clarifying the estimand of interest.
+
+Here, we examine how conclusions regarding adherence to Bergmann’s rule depend on the body size metric used and on model specification in a case study of three nightjar species: Eastern Whip-poor-will (*Antrostomus vociferus*)*,* Common nighthawk (*Chordeiles minor*)*, a*nd European nightjar (*Caprimulgus europaeus*). Previous work by @skinnerEnvironmentalGeographicConditions2025 demonstrated positive size–latitude relationships in these species when body size was approximated using mass and wing chord, and found that inclusion of age and sex improved model fit based on information-theoretic criteria. However, alternative morphological metrics were not evaluated, nor were covariates considered within an explicit causal framework or assessed for their effects on parameter precision. Thus, our objectives are twofold. First, we assess how multiple linear, volumetric, and derived body size metrics vary across a latitudinal gradient and whether inferred support for Bergmann’s rule depends on the metric used. Second, we evaluate how inclusion of age and sex influences estimated latitude effects and their precision. Together, our results illustrate both the robustness and the limitations of common size proxies and highlight the importance of aligning metric choice and model structure with biological theory and causal objectives when testing ecogeographical rules.
+
+# Methods
+
+```{r}
+#| label: libraries
+
+library(tidyverse)
+library(readr)
+library(broom)
+library(glue)
+library(dagitty)
+library(ggdag)
+library(cowplot)
+
+theme_set(theme_cowplot())
+```
+
+```{r}
+#| label: load-data
+#| include: false
+
+capri_df <- read_csv("Derived/Capri_BA_compare02.17.26.csv")
+
+species_vec <- c("Whip-poor-will", "Nightjar", "Nighthawk")
+base_df <- capri_df %>%
+  mutate(
+    Species = factor(Species, levels = species_vec),
+    Age = factor(Age, levels = c("Young", "Adult", "Unk")),
+    Sex = factor(Sex)
+  )
+```
+
+```{r}
+#| label: prep-data
+#| include: false
+
+prepare_species_data <- function(dat, species_name) {
+  d <- dat %>%
+    filter(Species == species_name) %>%
+    filter(Sex %in% c("M", "F")) %>%
+    filter(!is.na(B.Lat)) %>%
+    drop_na(Wing.comb, Tail.comb, Mass.comb)
+
+  if (species_name == "Nighthawk") {
+    # Nighthawks were not reliably aged; keep all ages and model by sex.
+    d <- d %>% mutate(Age_grp = "Unk")
+  } else {
+    d <- d %>%
+      filter(Age %in% c("Young", "Adult")) %>%
+      mutate(Age_grp = as.character(Age))
+  }
+
+  d <- d %>%
+    mutate(
+      SAtoV.comb = (Wing.comb^2) / Mass.comb,
+      Sex = droplevels(Sex)
+    )
+
+  pc_fit <- prcomp(d %>% select(Wing.comb, Tail.comb, Mass.comb), center = TRUE, scale. = TRUE)
+
+  d <- d %>%
+    mutate(PC1 = -pc_fit$x[, 1])
+
+  if (species_name == "Nighthawk") {
+    d <- d %>% mutate(stratum = as.character(Sex))
+  } else {
+    d <- d %>% mutate(stratum = paste(Age_grp, Sex, sep = "_"))
+  }
+
+  d
+}
+
+species_tbl <- tibble(Species = species_vec) %>%
+  mutate(data = map(Species, ~ prepare_species_data(base_df, .x)))
+
+analysis_df <- species_tbl %>%
+  mutate(data = map(data, ~ select(.x, -Species))) %>%
+  unnest(data)
+
+metrics_raw <- c("Wing.comb", "Tail.comb", "Mass.comb", "PC1", "SAtoV.comb")
+metric_labels <- c(
+  "Wing.comb" = "Wing",
+  "Tail.comb" = "Tail",
+  "Mass.comb" = "Mass",
+  "PC1" = "PC1",
+  "SAtoV.comb" = "SA/V"
+)
+
+analysis_df_z <- analysis_df %>%
+  group_by(Species) %>%
+  mutate(across(all_of(metrics_raw), ~ as.numeric(scale(.x)), .names = "{.col}.z")) %>%
+  ungroup()
+metrics_z <- paste0(metrics_raw, ".z")
+```
+
+```{r}
+#| label: model-helpers
+
+rhs_full <- c(
+  "Whip-poor-will" = "B.Lat + Age_grp + Sex",
+  "Nightjar" = "B.Lat + Age_grp + Sex",
+  "Nighthawk" = "B.Lat + Sex"
+)
+
+fit_metric_model <- function(dat, metric, rhs) {
+  mod <- lm(as.formula(glue("{metric} ~ {rhs}")), data = dat)
+  tibble(
+    metric = metric,
+    n = nobs(mod),
+    r2 = summary(mod)$r.squared,
+    vif = mean(car::vif(mod)),
+    model = list(mod)
+  )
+}
+```
+
+```{r}
+#| label: fit-models
+#| include: false
+
+model_tbl <- analysis_df_z %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(models = map2(data, Species, function(d, sp) {
+    map(metrics_z, function(m) fit_metric_model(d, m, rhs_full[[sp]])) %>% list_rbind()
+  })) %>%
+  select(Species, models) %>%
+  unnest(models) %>%
+  mutate(metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels))
+
+# Sample sizes
+ss <- model_tbl %>% 
+  distinct(Species, n) %>% 
+  deframe()
+```
+
+@skinnerEnvironmentalGeographicConditions2025 collated the largest morphological dataset on nightjars to date. Briefly, nightjars were captured on the breeding grounds using playback. They were uniquely banded, aged and sexed (where possible), and measured. The authors measured wing chord and tail length (both precision = 1 mm) using a wing ruler, and mass using a digital scale (precision = 0.1 g), or rarely a pesola scale. See @skinnerEnvironmentalGeographicConditions2025 (including supplemental information) for additional information.
+
+## Comparing metrics of body size
+
+I used the three morphological metrics from @skinnerEnvironmentalGeographicConditions2025 as proxies of body size, as well as two derived metrics that were functions of the three morphological metrics. I used the first principal component axis (PCA) of the previous three morphological measures, as well as the ratio of $\text{wing length}^2 / \text{ mass}$, which has been used to represent the surface-area-to-volume ratio (SA/V) in past studies [e.g., @nwaoguTemperatureAridityDetermine2018]. Analyses were restricted to individuals with all three morphological measurements to ensure comparability across models using different response variables. This resulted in sample sizes of `r ss[1]` for whip-poor-will, `r ss[2]` for European nightjar, and `r ss[3]` for nighthawk.
+
+I assessed objective one by comparing whether inferred support for Bergmann’s rule varied depending on the metric that was used as a proxy for body size. Support for Bergmann's rule was considered if the 95% confidence interval did not overlap 0 and the effect was in the direction predicted by Bergmann's rule (positive for all metrics except SA/V).
+
+## Age and sex as covariates
+
+@skinnerEnvironmentalGeographicConditions2025 suggested that variation in sex and age ratios could confound their estimate of interest (i.e., the estimand): latitude's impact on body size ($\beta_{Latitude}$, or just $\beta_{Lat}$ moving forward). However, they did not specify their causal assumptions or examine the emperical distribution of sex and age ratios across latitude (except in their 'full-annual-cycle analysis') to see if these variables could indeed confound their estimand. Instead, they relied on an information-theoretic approach (CITE burnham & Anderson) to assess gains in model fit with the inclusion of age or sex. The authors ultimately concluded that these were important covariates to include where possible, and thus they stratified by both age and sex in whip-poor-wills and European nightjars, and just by sex in nighthawks (nighthawks were generally not aged).
+
+In the present manuscript, I compare how the estimand of interest ($\beta_{Lat}$) changes with the inclusion of age, sex, or both variables. Importantly, age and sex are structured along the latitudinal gradient in European nightjars and whip-poor-wills in the present data set (Supplementary Figure X). Thus, objective two is achieved by examining how the estimate of the mean as well as the size of the 95% confidence intervals (a proxy for the precision of the estimate) vary depending on the model specification. I also examine age and sex from a causal modeling framework to determine if they may be confounding variables, as originally posited by @skinnerEnvironmentalGeographicConditions2025.
+
+## Statistical models
+
+In both objectives, all five proxies of body size (response variable) are fit as a function of breeding latitude (the estimand of interest) and some combination of age or sex (covariates). For objective one, I fit the same covariates as @skinnerEnvironmentalGeographicConditions2025 in making inference (see previous section). For objective two, I fit four models per species X body size proxy: 1) just latitude, 2) latitude + age, 3) latitude + sex, and 4) latitude + age + sex. The only exception was for nighthawks where I fit two models: 1) latitude and 2) latitude + sex. Response variables were mean-centered and scaled within species to improve comparability of effect sizes between species X body size proxy combinations.
+
+# Results
+
+## Objective 1
+
+Inference regarding Bergmann's rule was generally robust to the body size metric used to approximate body size. Thirteen of fifteen species X body size proxy combinations did not overlap 0 and were in the direction predicted by Bergmann's rule (@fig-slope-compare-conditioning). Nighthawk tail length and the surface-area-to-volume ratio in the whip-poor-will (only when sex was not included in the model) had effects overlapping zero (@fig-slope-compare-conditioning). Both effects were in the direction predicted by Bergmann's rule (@fig-all-slopes-single-graph). The linear regression equations relating latitude and body size were influenced by the size metric utilized, where $\beta_{Lat}$ tended to be steepest with mass, or wing chord and PC1 (which were always very similar), and the least steep when using tail length or the surface-area-to-volume ratio as the size metric (@fig-slope-compare-conditioning, @fig-all-slopes-single-graph).
+
+```{r}
+#| label: slope-estimates-latitude
+
+slope_specs <- function(species_name) {
+  if (species_name == "Nighthawk") {
+    c("Latitude" = "B.Lat", "+ Sex" = "B.Lat + Sex")
+  } else {
+    c(
+      "Latitude" = "B.Lat",
+      "+ Age" = "B.Lat + Age_grp",
+      "+ Sex" = "B.Lat + Sex",
+      "+ Age + Sex" = "B.Lat + Age_grp + Sex"
+    )
+  }
+}
+
+extract_lat_slope <- function(dat, metric, model_label, rhs) {
+  mod <- lm(as.formula(glue("{metric} ~ {rhs}")), data = dat)
+  tidy(mod, conf.int = TRUE) %>%
+    filter(term == "B.Lat") %>%
+    mutate(
+      metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels),
+      model_type = model_label,
+      estimate = estimate,
+      conf.low = conf.low,
+      conf.high = conf.high,
+      .keep = "none"
+    )
+}
+
+slope_tbl <- analysis_df_z %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(slopes = map2(data, Species, function(d, sp) {
+    specs <- slope_specs(sp)
+    map(metrics_z, function(m) {
+      imap(specs, function(rhs, lab) extract_lat_slope(d, m, lab, rhs)) %>% list_rbind()
+    }) %>% list_rbind()
+  })) %>%
+  select(Species, slopes) %>%
+  unnest(slopes) %>% 
+  mutate(model_type = factor(model_type, levels = c("Latitude", "+ Age", "+ Sex", "+ Age + Sex")))
+```
+
+```{r}
+#| label: fig-slope-compare-conditioning
+#| fig-cap: fsd
+#| fig-width: 8.5
+
+# Mean slopes of latitude by model and metric
+ggplot(slope_tbl, aes(x = metric, y = estimate, color = model_type)) +
+  geom_errorbar(
+    aes(ymin = conf.low, ymax = conf.high),
+    width = 0,
+    alpha = 0.35,
+    position = position_dodge(width = 0.7)
+  ) +
+  geom_point(size = 2.7, position = position_dodge(width = 0.7)) +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  facet_wrap(~Species, nrow = 1) +
+  coord_flip() +
+  labs(
+    x = NULL,
+    y = "Latitude slope estimate (scaled response)",
+    color = "Model"
+  ) + theme(legend.position = "top")
+```
+
+```{r}
+#| label: prep-single-line-per-metric
+
+reference_stratum <- function(species_name, dat) {
+  if (species_name == "Nighthawk") {
+    tibble(Sex = factor("M", levels = levels(dat$Sex)))
+  } else {
+    tibble(
+      Age_grp = "Adult",
+      Sex = factor("M", levels = levels(dat$Sex))
+    )
+  }
+}
+
+pred_single <- analysis_df_z %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(models = map2(data, Species, function(d, sp) {
+    map(metrics_z, function(m) {
+      mod <- lm(as.formula(glue("{m} ~ {rhs_full[[sp]]}")), data = d)
+      tibble(metric = m, model = list(mod))
+    }) %>% list_rbind()
+  })) %>%
+  select(Species, data, models) %>%
+  unnest(models) %>%
+  mutate(pred = pmap(list(data, model, Species), function(d, mod, sp) {
+    lat_seq <- seq(min(d$B.Lat), max(d$B.Lat), length.out = 150)
+    ref <- reference_stratum(sp, d)
+    newdat <- crossing(B.Lat = lat_seq, ref)
+    newdat %>% mutate(fit = predict(mod, newdata = newdat))
+  })) %>%
+  select(Species, metric, pred) %>%
+  unnest(pred) %>%
+  mutate(metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels))
+```
+
+```{r}
+#| label: fig-all-slopes-single-graph
+#| fig-cap: To reduce clutter, we show the relationship just for adult males. 
+#| fig-width: 8.5
+
+ggplot(pred_single, aes(x = B.Lat, y = fit, color = metric)) +
+  geom_line(linewidth = 1.05) +
+  facet_wrap(~Species, nrow = 1) +
+  labs(
+    x = "Breeding latitude",
+    y = "Predicted scaled body size (z)",
+    color = "Metric"
+  )
+```
+
+## Objective 2
+
+Generally, the inclusion of age and sex do not alter the estimate of interest $\beta_{Lat}$ very much or in a predictable direction (@fig-slope-compare-conditioning), although they tend to slightly increase the precision around the mean (i.e., the confidence intervals are narrower; supplementary figure X). Estimates of $\beta_{Lat}$ were attenuated (move towards 0) by including age in European nightjar, whereas the mean estimate $\beta_{Lat}$ in nighthawk was not noticably influenced by the inclusion of sex. The influence of age and sex on the estimate of $\beta_{Lat}$ was more nuanced in whip-poor-wills, generally attenuating in linear metrics but increasing in magnitude in volumetric metrics (i.e., mass) and the surface-area-to-volume ratio when stratified by sex. Causal assumptions are specified in @fig-dag-site-confounder.
+
+```{r}
+#| label: fig-dag-site-confounder
+#| fig-cap: Site acts as a confounding variable as differences in sampling methodology influence the age and sex distribution across latitudes. We must condition on age / sex to achieve an unbiased estimate of latitude's effect on mass under this set of causal assumptions.
+#| fig-width: 8.5
+
+# Specify relationships for simplified dag
+dag <- dagify(
+  Latitude ~ Site, 
+  Size ~ Latitude + Age_sex,
+  #Reproductive_status ~ Latitude,
+  Age_sex ~ Site,
+  exposure = c("Latitude"), 
+  outcome = "Size"
+  #latent = c("Unknown")
+)
+
+# Plot
+tidy_dagitty(dag, layout = "fr") %>% 
+  ggdag_status(text_col = "black",
+               text = TRUE, 
+               edge_type = "link_arc",
+               node_size = 20,
+               text_size = 3, 
+               stylized = TRUE) + 
+  theme_dag() + 
+  guides(fill = "none", color = "none")
+```
+
+# Discussion
+
+The present manuscript assesses Bergmann's rule using linear, volumetric, and derived metrics of body size in three nightjar species. I show that inference regarding Bergmann's rule is generally robust to the metric used to approximate body size in three nightjar species, adding additional support for findings in @skinnerEnvironmentalGeographicConditions2025. That being said, inference would change in nighthawks if using tail length to approximate body size, or if using surface-area-to-volume ratios in whip-poor-wills (when not conditioning on sex). With the exception of surface-area-to-volume ratios in whip-poor-wills, the inclusion of age and sex covariates did not greatly influence our estimate of $\beta_{Lat}$, and the direction of change was not predictable.
+
+## Metrics of body size
+
+Nighthawk tail does not increase with latitude, likely constrained by... Territorial boom? Sexual selection?
+
+## Controlling for confounders in studies of Bergmann's rule
+
+As mentioned previously...
+
+@skinnerEnvironmentalGeographicConditions2025 suggested that variation in sex and age ratios could confound their estimate of interest (i.e., the estimand): latitude's impact on body size ($\beta_{Latitude}$, or just $\beta_{Lat}$ moving forward). However, they did not specify their causal assumptions or examine the emperical distribution of sex and age ratios across latitude (except in their 'full-annual-cycle analysis') to see if these variables could indeed confound their estimand. Instead, they relied on an information-theoretic approach (CITE burnham & Anderson) to assess gains in model fit with the inclusion of age or sex. The authors ultimately concluded that these were important covariates to include where possible, and thus they stratified by both age and sex in whip-poor-wills and European nightjars, and just by sex in nighthawks (nighthawks were generally not aged).
+
+### A causal perspective
+
+The causal assumptions outline in the DAG presented in @fig-dag-site-confounder suggest that we must include age and sex, or site, as covariates to obtain an unbiased estimate of $\beta_{Lat}$. Either of these approaches would block the backdoor path connecting connecting latitude and body size.
+
+# Supplementary
+
+```{r}
+#| label: variance-partition
+
+variance_components_one <- function(dat, species_name, metric) {
+  full_rhs <- rhs_full[[species_name]]
+  mod_full <- lm(as.formula(glue("{metric} ~ {full_rhs}")), data = dat)
+  r2_full <- summary(mod_full)$r.squared
+
+  predictors <- str_split(full_rhs, "\\s*\\+\\s*")[[1]]
+
+  unique_tbl <- map(predictors, function(pred) {
+    rhs_wo <- predictors[predictors != pred]
+    rhs_wo <- if (length(rhs_wo) == 0) "1" else paste(rhs_wo, collapse = " + ")
+    mod_wo <- lm(as.formula(glue("{metric} ~ {rhs_wo}")), data = dat)
+    tibble(component = pred, value = r2_full - summary(mod_wo)$r.squared)
+  }) %>% list_rbind()
+
+  comp_lbl <- c(
+    "B.Lat" = "Latitude",
+    "Age_grp" = "Age",
+    "Sex" = "Sex"
+  )
+
+  unique_tbl <- unique_tbl %>%
+    mutate(component = recode(component, !!!comp_lbl))
+
+  shared <- r2_full - sum(unique_tbl$value)
+  residual <- 1 - r2_full
+
+  bind_rows(
+    unique_tbl,
+    tibble(component = "Shared", value = shared),
+    tibble(component = "Residuals", value = residual)
+  ) %>%
+    mutate(
+      metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels),
+      pct = 100 * value
+    ) %>%
+    select(metric, component, pct)
+}
+
+variance_tbl <- analysis_df_z %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(vp = map2(data, Species, function(d, sp) {
+    map(metrics_z, function(m) variance_components_one(d, sp, m)) %>% list_rbind()
+  })) %>%
+  select(Species, vp) %>%
+  unnest(vp)
+
+# Is this really valid? 
+variance_tbl2 <- variance_tbl %>%
+  group_by(Species, metric) %>%
+  mutate(pct = 100 * abs(pct) / sum(abs(pct))) %>%
+  ungroup()
+```
+
+```{r}
+#| label: fig-var-partitioning
+#| fig-cap: Stacked bar plot showing the unique variance explained by each component of the full model. The unique variance components include latitude, sex, age (in whip-poor-will and European nightjar), shared variance (explained by the model but not uniquely attributable to a variable), and residuals (not explained by the model),
+#| fig-width: 8.5
+
+order_fac <- c("Latitude", "Sex", "Age", "Shared", "Residuals")
+variance_tbl2 %>%
+  mutate(component = factor(component, levels = order_fac)) %>%
+  ggplot(aes(x = metric, y = pct, fill = component)) +
+  geom_col(width = 0.8) +
+  facet_wrap(~Species, nrow = 1) +
+  labs(x = NULL, y = "Percent of variance", fill = "Component") + 
+  theme(legend.position = "top")
+```
+
+```{r}
+#| label: predicted-relationships-tbl
+
+make_prediction_grid <- function(dat, model_obj) {
+  lat_seq <- seq(min(dat$B.Lat), max(dat$B.Lat), length.out = 150)
+
+  if ("Age_grp" %in% names(model.frame(model_obj))) {
+    expand_grid(
+      B.Lat = lat_seq,
+      Age_grp = sort(unique(dat$Age_grp)),
+      Sex = sort(unique(as.character(dat$Sex)))
+    )
+  } else {
+    expand_grid(
+      B.Lat = lat_seq,
+      Sex = sort(unique(as.character(dat$Sex)))
+    )
+  }
+}
+
+pred_tbl <- analysis_df_z %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(models = map2(data, Species, function(d, sp) {
+    map(metrics_z, function(m) fit_metric_model(d, m, rhs_full[[sp]])) %>% list_rbind()
+  })) %>%
+  select(Species, data, models) %>%
+  unnest(models) %>%
+  mutate(pred = map2(data, model, function(d, mod) {
+    newdat <- make_prediction_grid(d, mod)
+    newdat %>% mutate(fit = predict(mod, newdata = newdat))
+  })) %>%
+  select(Species, metric, pred) %>%
+  unnest(pred) %>%
+  mutate(
+    metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels),
+    stratum = if_else(Species == "Nighthawk", Sex, paste(Age_grp, Sex, sep = "_"))
+  )
+
+obs_long <- analysis_df_z %>%
+  select(Species, B.Lat, stratum, all_of(metrics_z)) %>%
+  pivot_longer(cols = all_of(metrics_z), names_to = "metric", values_to = "value") %>%
+  mutate(metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels))
+```
+
+```{r}
+#| label: fig-15-panel-plot
+#| fig-cap: fsd
+#| fig-width: 8.5
+#| fig-height: 6
+
+ggplot(obs_long, aes(x = B.Lat, y = value)) +
+  geom_point(alpha = 0.15, size = 0.7, color = "gray50") +
+  geom_line(
+    data = pred_tbl,
+    aes(y = fit, color = stratum, group = interaction(stratum, metric, Species)),
+    linewidth = 0.9
+  ) +
+  facet_grid(Species ~ metric) +
+  labs(x = "Breeding latitude", y = "Scaled body size (z)", color = "Stratum") +
+  ylim(-2.75, 3.75)
+```
+
+```{r}
+#| label: fig-precision
+#| fig-cap: fsd
+#| fig-width: 8.5
+
+# Precision around the latitude slope estimate 
+slope_tbl %>% mutate(ci.size = conf.high - conf.low) %>% 
+  ggplot(aes(x = Species, y = ci.size, color = model_type)) + 
+  geom_boxplot() + 
+  facet_wrap(~metric, nrow = 1) + 
+  labs(y = "Confidence interval", x = NULL)
+```
+
+```{r}
+#| label: fig-sex-age-ratio-latitude
+#| fig-cap: fsd
+#| fig-width: 8.5
+
+analysis_df %>% 
+  ggplot(aes(x=B.Lat, color=Sex))+
+  geom_density() +
+  facet_wrap(~Species, scales = "free_y")
+
+analysis_df %>% filter(Species != "Nighthawk") %>%
+  ggplot(aes(x = B.Lat, color = Age))+
+  geom_density()+
+  facet_wrap(~Species, scales = "free_y")
+```
+
+```{r}
+
+analysis_df %>% filter(Species == "Nighthawk") %>%
+  ggplot(aes(x = B.Lat, y = Tail.comb, color = Sex))+
+  geom_point() + 
+  geom_smooth()
+```

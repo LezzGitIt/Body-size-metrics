@@ -8,6 +8,18 @@
 
 # User-specific files
 .Ruserdata
+Suppfiles/*
+!Suppfiles/authors.yml
+!Suppfiles/abstract_keywords.yml
+
+# Elsevier files
+_extensions/*
+*.bst
+*.cls
+
+# Quarto files
+*.spl
+Derived/*
 
 # Example code in package build process
 *-Ex.R
@@ -47,3 +59,9 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# My selection of files to ignore
+.DS_Store
+!Extra_scripts/*
+
+/.quarto/

@@ -446,7 +446,7 @@ tidy_dagitty(dag, layout = "fr") %>%
 
 # Discussion
 
-The present manuscript assesses Bergmann's rule using multiple metrics of body size in three nightjar species to determine if size metric selection and the inclusion of covariates influenced biological conclusions. Across species, inference regarding Bergmann's rule is generally robust to the metric used to approximate body size. These consistent results from size traits occupying distinct regions of the inferential space outlined in Box 1 provide strong support for the findings of @skinnerEnvironmentalGeographicConditions2025. However, robustness was not universal. Inference would change in nighthawks if using tail length to approximate body size, or if using surface-area-to-volume ratios in whip-poor-wills (when not conditioning on sex). With the exception of surface-area-to-volume ratios in whip-poor-wills, the inclusion of age and sex covariates did not greatly influence our estimate of $\beta_{Lat}$, and the direction of change was not predictable.
+The present manuscript assesses Bergmann's rule using multiple metrics of body size in three nightjar species to determine if size metric selection and the inclusion of covariates influenced biological conclusions. Across species, inference regarding Bergmann's rule is generally robust to the metric used to approximate body size. These consistent results from size traits occupying distinct regions of the inferential space outlined in Box 1 provide strong support for the findings of @skinnerEnvironmentalGeographicConditions2025. However, the strength of support varied among metrics, and there were two species X trait combinations where biological inference changed depending on the trait used or the inclusion of covariates. Inference would change in nighthawks if using tail length to approximate body size, or if using surface-area-to-volume ratios in whip-poor-wills (when not conditioning on sex). With the exception of surface-area-to-volume ratios in whip-poor-wills, the inclusion of age and sex covariates did not greatly influence our estimate of $\beta_{Lat}$, and the direction of change was not predictable.
 
 ## Metrics of body size
 
@@ -462,35 +462,45 @@ Past work has highlighted the importance of accounting for age / sex dimorphism 
 
 The other reason that people may chose to include age or sex in models is to increase the precision around the estimate of $\beta_{Lat}$. This can certainly be a valid reason to include covariates as long as they do not interfere with the causal interpretation of the estimate of interest. In our case study the addition of age and sex tended to increase the precision around the estimate of $\beta_{Lat}$, but in rare cases it actually reduced precision (supplementary figure X). So from an estimation stand point, when should you include covariates like age and sex? Generally, covariates that soak up unexplained variance in the response variable without greatly increasing collinearity with the exposure variable (latitude in this case) will improve precision, while adding collinearity without removing much unexplained variance in the response variable will actually reduce certainty around the estimate of interest. For example, adding age to Nightjar models with $\text{wing}^2 / \text{ mass}$ as the response variable explained negligible variance (supplementary figure X) while increasing collinearity between latitude and age (supplementary figure X). In this case, the addition of age increased ambiguity in the attribution of spatial variation in the surface-area-to-volume ratio.
 
-## Conclusions
+## Practical recommendations
 
-Confounder control is a causal decision as well as a statistical one. Trends consistent with Bergmann's rule in 14 of 15 species X size metric combinations. I
+Robust inference about relationships between body size and environmental gradients requires deliberate choices about trait selection, model structure, and interpretation. The following steps provide a practical framework applicable across taxa.
 
-## Practical recommendations -
+**1) Identify candidate traits that could represent body size.** Begin by listing all morphological measurements available that plausibly reflect organismal size or structure. This may include linear dimensions, volumetric measures such as mass, and composite or derived indices.
 
-Consider the traits available that could represent body size.
+**2) Evaluate each trait across the conceptual axes in Box 1.** This assessment clarifies what biological processes each metric is likely capturing and highlights tradeoffs between interpretability, physiological relevance, and temporal stability.
 
-Consider the 3 axes in question (box 1): 1) how important they are for thermoregulation vs other life-history traits, 2) whether they are linear, volumetric, or derived, and 3) whether they are fixed or flexible
+**3) Select a suite of traits.** This should include at least one linear and one volumetric metric. Fixed metrics with high thermoregulatory relevance are preferred. Derived traits can also be included but should be considered supplementary to the traits that compose them.
 
-Select at least 3 traits: one linear, volumetric, or derived
+**4) Define the causal estimand and articulate causal assumptions.** Explicitly state the effect of interest (e.g., $\beta_{Lat}$) as well as other covariates that could be included in the estimator to achieve the estimand or increase the precision with which it is estimated. Use causal reasoning, ideally represented visually through directed acyclic graphs or described clearly in text, to identify:
 
-Examine the allometric scaling relationships?
+-   variables that primarily influence precision rather than bias,
 
-Confounding variables:
+-   potential confounders requiring adjustment,
 
-List all variables that could influence body size
+-   variables that should not be conditioned on due to collider or mediator structures
 
-Think causally and state causal assumptions (visually through DAG or in words); examine distribution of these variables along latitudinal / temperature gradients. Even if a variable in theory could bias your estimand, if it is no relationship with latitude/ temperature then it won't introduce bias \[is this correct?\]
+**5) Assess covariate distributions along environmental gradients.** Empirically examine how candidate covariates vary across latitude or temperature. Even theoretically plausible confounders cannot bias estimates if they show little or no association with the exposure gradient in the study system. Conversely, strong spatial or climatic structure in covariates highlights the need for careful causal adjustment.
 
-Classify covariates as those that might increase precision around the estimand of interest vs those that should or should not be included to obtain an unbiased estimate of interest
+**6) Build models to obtain the estimand of interested.** After causal structure is addressed, additional covariates may be included to improve precision, account for sampling heterogeneity, or enhance model fit, provided they do not introduce bias. Model comparison tools can guide statistical performance, but causal logic should determine the core structure of adjustment.
 
-Adjust the model for statistical reasons (balance between groups, goodness of fit, etc)
+**7) Interpret multi-metric results along a continuum rather than dichotomously.** Viewing adherence to Bergmann’s rule as a continuum of support rather than a binary outcome better reflects the multidimensional nature of morphology and the multiple selective pressures shaping it. Interpret patterns in terms of the
 
-Biological interpretation:
+-   consistency across metrics,
 
-As you increase the number of traits it is more likely that you find something significant. Requires careful biological interpretation with multiple tests. We want an overall idea of whether the species follows Bergmann's rule , which can be a spectrum. Think in terms of degree of support instead of binary yes / no. Be aware of the table II falacy (dont interpret effects that the model wasn't created to estimate)
+-   strength and direction of effects,
 
-Wings on the other hand shown to be important, especially in migratory species or those that have long periods of relatively uninterrupted flight (eg parrots) - Weeks (2025)
+-   alignment with biological expectations based on selection regimes (axis 2) and trait lability (axis 3)
+
+## Conclusions - Working
+
+Tests of Bergmann’s rule often proceed as though “body size” were a singular, unambiguous quantity. This case study demonstrates that while inference can be robust across commonly used metrics, that robustness is neither guaranteed nor mechanistically uniform. Linear and volumetric traits in nightjars generally yielded consistent latitudinal patterns,
+
+However, traits strongly shaped by non-thermal functional constraints, as well as composite indices designed to approximate surface-area-to-volume ratios, revealed how metric choice can alter interpretation. Together, these results reinforce the view that body size is inherently multidimensional and that tests of Bergmann’s rule are, at their core, tests of how specific morphological components respond to environmental gradients.
+
+Explicit alignment between biological theory, morphometric structure, and causal model specification will yield more transparent and comparable inferences across systems. Rather than asking whether a species “follows” Bergmann’s rule in a binary sense, future work may benefit from positioning traits along a continuum of thermoregulatory relevance and functional constraint.
+
+Confounder control is a causal decision as well as a statistical one. Trends consistent with Bergmann's rule in 14 of 15 species X size metric combinations.
 
 # Supplementary
 
@@ -741,3 +751,5 @@ In practice, there is little guidance on body size trait selection, which is com
 PC axes are often used [@risingMeasurementOverallBody1989] not comparable across studies if the raw data is not shared @theriotHarnessingNaturalHistory2023
 
 Also see @yom-tovRecentSpatialTemporal2011 for discussion of the selection of body size metrics.
+
+Wings shown to be important, especially in migratory species or those that have long periods of relatively uninterrupted flight (eg parrots) - Weeks (2025)

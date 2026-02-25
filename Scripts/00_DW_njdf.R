@@ -115,75 +115,26 @@ map(Species, \(sp){
 
 # Remove 5 outliers with unrealistically large tails - I discussed with Elly Knight (provider of CONI data) & she thinks these are indeed errors. 
 aj_tbl <- capri.df3 %>% filter(Species == "Nighthawk" & Tail.Length > 180)
-capri.df3 <- capri.df3 %>% anti_join(aj_tbl)
-
-# Mass Correction ----------------------------------------------------------
-#Nightjars will continue feeding throughout the night (dependent upon moonlight) & their mass will continue to increase. We capture individuals throughout the night which could introduce bias in body mass that is unrelated to the latitude of capture. Thus, we want to include the time since sunset as a covariate in body mass models to account for this bias.
-
-#Add in row_number here to serve as primary key for linking back up with tsss
-capri.df3 <- capri.df3 %>% mutate(rowID = row_number())
-
-## Format for suncalc functions
-df <- capri.df3 %>% summarize(date = as.Date(Banding.Date), 
-                              lat = B.Lat, 
-                              lon = B.Long,
-                              DateTime = ymd_hms(paste(
-                                as.character(Banding.Date), Banding.Time)
-                                ),
-                              Banding.Time = Banding.Time, 
-                              rowID = rowID) 
-
-#Extract time zone for each individual 
-df <- df %>% mutate(tz=tz_lookup_coords(lat, lon, method="accurate"))
-
-#Extract the time of sunset for each individual based on geographic coordinates & date
-tzs <- unique(df$tz)
-dftz <- list()
-for(i in 1:length(tzs)){
-  #Separate by timezone
-  dftz[[i]] <- df %>% filter(tz == tzs[i])
-  dftz[[i]]$sunset <- getSunlightTimes(data=dftz[[i]], keep="sunset", tz=tzs[i])$sunset
-}
-
-#Force the sunset column to be in UTC timezone. This allows for correct calculation of tsss b/c the banding times are assumed to be in UTC (we don't specify their actual tz)
-dftz <- lapply(dftz, function(x){ force_tz(x, "UTC")})
-sun_df <- bind_rows(dftz) 
-
-#Subtract a day from sunset time if bird was caught early in the AM 
-sun_df2 <- sun_df %>% mutate(sunset = as_datetime(ifelse(hms(Banding.Time) < hms("09:00:00"), 
-                                                         ymd_hms(sunset) - lubridate::days(1), 
-                                                         ymd_hms(sunset))))
-
-#Calculate the tsss (time since sunset)
-sun_df2$tsss <- as.numeric(difftime(sun_df2$DateTime, sun_df2$sunset), units="hours")
-sun_df2 <- sun_df2 %>% mutate(across(where(is.numeric), round, 3))
-
-capri.df4 <- merge(capri.df3, sun_df2[,c("rowID", "tsss", "sunset")], by = "rowID")
+capri.df4 <- capri.df3 %>% anti_join(aj_tbl)
 
 # Band.Age -------------------------------------------
 # Given that some individuals were captured multiple times we want to incorporate that information to have a better estimate of body size. Sizes differ by age so we want to combine morphological variables of individuals that are the same age. Sex doesn't change overtime so don't need to worry about that. 
 
 # Create Band.Age variable, where individuals of the same age will have the same 'Band.Age', and use mutate to average morphologies (and time since sunset cov) by Band.Age
-capri.df4 <- capri.df4 %>% mutate(Band.Age = paste0(Age, "_", Band.Number)) %>%
+capri.df5 <- capri.df4 %>% 
+  mutate(Band.Age = paste0(Age, "_", Band.Number)) %>%
   group_by(Band.Age) %>% 
   mutate(Wing.comb = mean(Wing.Chord, na.rm = TRUE), 
          Mass.comb = mean(Mass, na.rm = TRUE),
          Tail.comb = mean(Tail.Length, na.rm = TRUE)) 
-capri.df5 <- capri.df4 %>% filter(!is.na(Banding.Time)) %>%
-  mutate(Mass.combBT = mean(Mass, na.rm = T)) %>% 
-  filter(!is.na(Mass)) %>% 
-  mutate(tsss.comb = mean(tsss, na.rm = T)) %>% 
-  rbind(capri.df4 %>% filter(is.na(Mass) | is.na(Banding.Time))) %>% 
-  tidyr::fill(tsss.comb, Mass.combBT, .direction = "downup") 
 
 # CapriBA --------------------------------------------------------
 ##CapriBA has only a single row for each Band & Age combo
-capriBA_compare <- capri.df5 %>% group_by(Band.Age) %>% #BA = band age
+capriBA_compare <- capri.df5 %>% 
+  group_by(Band.Age) %>% #BA = band age
   arrange(is.na(W.Lat), Year, .by_group = TRUE) %>% 
-  slice_head() %>% 
-  relocate(uniqID, .after = rowID) %>%
-  data.frame() 
+  slice_head()
 
 # Export capriBA ---------------------------------------------------------
-#Write capriBA.. Note uniqID is truly unique, but this df will still be further filtered
+# Write capriBA.. Note uniqID is truly unique, but this df will still be further filtered
 write.csv(capriBA_compare, file = paste0("Derived/Capri_BA_compare", format(Sys.Date(), "%m.%d.%y"), ".csv"), row.names = FALSE)

@@ -6,8 +6,9 @@ execute:
  message: false
  warning: false
  cache: false
-format:
-  elsevier-pdf: # elsevier-pdf
+format: #docx
+  elsevier-pdf: 
+    toc: true
     header-includes:
       - |
         \usepackage{fancyhdr}
@@ -15,18 +16,15 @@ format:
         \fancyhead[R]{Short title here}
         \usepackage{makecell}
         \usepackage{lineno}
-        \usepackage{float}
         \linenumbers
         \usepackage[margin=1in]{geometry}
         \setlength{\LTleft}{\fill}
         \setlength{\LTright}{\fill}
         \usepackage{tabularray}
-    journal:
-      name: JOURNAL NAME
-      formatting: preprint #doubleblind suppresses authors!
-      cite-style: authoryear
 bibliography: ../Suppfiles/Morphology.bib
 ---
+
+{{< pagebreak >}}
 
 ```{r}
 #| label: libraries
@@ -50,9 +48,11 @@ capri_pca1 <- readRDS("Rdata/capri_pca1.rds")
 load("Rdata/Supp_info_objs.Rdata")
 ```
 
+# Sex & age distributions across the latitudinal gradient
+
 ```{r}
 #| label: fig-sex-age-ratio-latitude
-#| fig-cap: Distribution of sampled sex and age classes by breeding latitudes which motivates conditioning on these covariates in regression models. Note in particular the skewed sex ratio at the sites around 40 degrees North. 
+#| fig-cap: Distribution of sampled sex and age classes by breeding latitudes which motivates conditioning on these covariates in regression models. Note in particular the skewed age and sex ratios at the sites around 40 degrees North in Whip-poor-wills. 
 #| fig-width: 10
 #| fig-height: 7
 
@@ -92,8 +92,10 @@ analysis_df_z <- analysis_df %>%
   ungroup()
 ```
 
+# Slopes all age X sex combinations
+
 ```{r}
-#| label: variance-partition
+#| label: predicted-relationships-fns
 
 # Specify full formulas for each species
 rhs_full <- c(
@@ -101,6 +103,86 @@ rhs_full <- c(
   "Nightjar" = "B.Lat + Age_grp + Sex",
   "Nighthawk" = "B.Lat + Sex"
 )
+
+make_prediction_grid <- function(dat, model_obj) {
+  lat_seq <- seq(min(dat$B.Lat), max(dat$B.Lat), length.out = 150)
+
+  if ("Age_grp" %in% names(model.frame(model_obj))) {
+    expand_grid(
+      B.Lat = lat_seq,
+      Age_grp = sort(unique(dat$Age_grp)),
+      Sex = sort(unique(as.character(dat$Sex)))
+    )
+  } else {
+    expand_grid(
+      B.Lat = lat_seq,
+      Sex = sort(unique(as.character(dat$Sex)))
+    )
+  }
+}
+
+fit_metric_model <- function(dat, metric, rhs) {
+  mod <- lm(as.formula(glue("{metric} ~ {rhs}")), data = dat)
+  tibble(
+    metric = metric,
+    n = nobs(mod),
+    r2 = summary(mod)$r.squared,
+    vif = mean(car::vif(mod)),
+    model = list(mod)
+  )
+}
+```
+
+```{r}
+#| label: predicted-relationships-tbls
+
+pred_tbl <- analysis_df_z %>%
+  group_by(Species) %>%
+  nest() %>%
+  mutate(models = map2(data, Species, function(d, sp) {
+    map(metrics_z, function(m) fit_metric_model(d, m, rhs_full[[sp]])) %>% list_rbind()
+  })) %>%
+  select(Species, data, models) %>%
+  unnest(models) %>%
+  mutate(pred = map2(data, model, function(d, mod) {
+    newdat <- make_prediction_grid(d, mod)
+    newdat %>% mutate(fit = predict(mod, newdata = newdat))
+  })) %>%
+  select(Species, metric, pred) %>%
+  unnest(pred) %>%
+  mutate(
+    metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels),
+    stratum = if_else(Species == "Nighthawk", Sex, paste(Age_grp, Sex, sep = "_"))
+  )
+
+obs_long <- analysis_df_z %>%
+  select(Species, B.Lat, stratum, all_of(metrics_z)) %>%
+  pivot_longer(cols = all_of(metrics_z), names_to = "metric", values_to = "value") %>%
+  mutate(metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels))
+```
+
+```{r}
+#| label: fig-15-panel-plot
+#| fig-cap: Observed standardized trait values and model-predicted latitudinal trends for each species and metric. Gray points are observations, colored lines are fitted values for each age-sex stratum (or sex only in nighthawk).
+#| fig-width: 11
+#| fig-height: 7.5
+#| fig-pos: 'H'
+
+ggplot(obs_long, aes(x = B.Lat, y = value)) +
+  geom_point(alpha = 0.15, size = 0.7, color = "gray50") +
+  geom_line(
+    data = pred_tbl,
+    aes(y = fit, color = stratum, group = interaction(stratum, metric, Species)),
+    linewidth = 0.9
+  ) +
+  facet_grid(Species ~ metric) +
+  labs(x = "Breeding latitude", y = "Scaled body size (z)", color = "Stratum") +
+  ylim(-2.75, 3.75) +
+  theme(strip.text = element_text(size = 10))
+```
+
+```{r}
+#| label: variance-partition
 
 variance_components_one <- function(dat, species_name, metric) {
   full_rhs <- rhs_full[[species_name]]
@@ -156,105 +238,14 @@ variance_tbl2 <- variance_tbl %>%
   ungroup()
 ```
 
-```{r}
-#| label: fig-var-partitioning
-#| fig-cap: Stacked bar plot showing the unique variance explained by each component of the full model. The unique variance components include latitude, sex, age (in whip-poor-will and European nightjar), shared variance (explained by the model but not uniquely attributable to a variable), and residuals (not explained by the model),
-#| fig-width: 10
-#| fig-height: 4.8
-
-order_fac <- c("Latitude", "Sex", "Age", "Shared", "Residuals")
-variance_tbl2 %>%
-  mutate(component = factor(component, levels = order_fac)) %>%
-  ggplot(aes(x = metric, y = pct, fill = component)) +
-  geom_col(width = 0.8) +
-  facet_wrap(~Species, nrow = 1) +
-  labs(x = NULL, y = "Percent of variance", fill = "Component") + 
-  theme(
-    legend.position = "top",
-    axis.text.x = element_text(angle = 60, hjust = 1)
-  )
-```
-
-```{r}
-#| label: predicted-relationships-tbl
-
-make_prediction_grid <- function(dat, model_obj) {
-  lat_seq <- seq(min(dat$B.Lat), max(dat$B.Lat), length.out = 150)
-
-  if ("Age_grp" %in% names(model.frame(model_obj))) {
-    expand_grid(
-      B.Lat = lat_seq,
-      Age_grp = sort(unique(dat$Age_grp)),
-      Sex = sort(unique(as.character(dat$Sex)))
-    )
-  } else {
-    expand_grid(
-      B.Lat = lat_seq,
-      Sex = sort(unique(as.character(dat$Sex)))
-    )
-  }
-}
-
-fit_metric_model <- function(dat, metric, rhs) {
-  mod <- lm(as.formula(glue("{metric} ~ {rhs}")), data = dat)
-  tibble(
-    metric = metric,
-    n = nobs(mod),
-    r2 = summary(mod)$r.squared,
-    vif = mean(car::vif(mod)),
-    model = list(mod)
-  )
-}
-
-pred_tbl <- analysis_df_z %>%
-  group_by(Species) %>%
-  nest() %>%
-  mutate(models = map2(data, Species, function(d, sp) {
-    map(metrics_z, function(m) fit_metric_model(d, m, rhs_full[[sp]])) %>% list_rbind()
-  })) %>%
-  select(Species, data, models) %>%
-  unnest(models) %>%
-  mutate(pred = map2(data, model, function(d, mod) {
-    newdat <- make_prediction_grid(d, mod)
-    newdat %>% mutate(fit = predict(mod, newdata = newdat))
-  })) %>%
-  select(Species, metric, pred) %>%
-  unnest(pred) %>%
-  mutate(
-    metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels),
-    stratum = if_else(Species == "Nighthawk", Sex, paste(Age_grp, Sex, sep = "_"))
-  )
-
-obs_long <- analysis_df_z %>%
-  select(Species, B.Lat, stratum, all_of(metrics_z)) %>%
-  pivot_longer(cols = all_of(metrics_z), names_to = "metric", values_to = "value") %>%
-  mutate(metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels))
-```
-
-```{r}
-#| label: fig-15-panel-plot
-#| fig-cap: Observed standardized trait values and model-predicted latitudinal trends for each species and metric. Gray points are observations, colored lines are fitted values for each age-sex stratum (or sex only in nighthawk).
-#| fig-width: 11
-#| fig-height: 7.5
-
-ggplot(obs_long, aes(x = B.Lat, y = value)) +
-  geom_point(alpha = 0.15, size = 0.7, color = "gray50") +
-  geom_line(
-    data = pred_tbl,
-    aes(y = fit, color = stratum, group = interaction(stratum, metric, Species)),
-    linewidth = 0.9
-  ) +
-  facet_grid(Species ~ metric) +
-  labs(x = "Breeding latitude", y = "Scaled body size (z)", color = "Stratum") +
-  ylim(-2.75, 3.75) +
-  theme(strip.text = element_text(size = 10))
-```
+# Age & sex impact on precision
 
 ```{r}
 #| label: fig-precision
 #| fig-cap: Precision of latitude-slope estimates across model specifications and body-size metrics. Boxplots show the distribution of 95% confidence-interval widths (conf.high − conf.low), where smaller values indicate greater precision.
 #| fig-width: 10
 #| fig-height: 5.5
+#| fig-pos: 'H'
 
 slope_tbl %>%
   mutate(ci.size = conf.high - conf.low) %>%
@@ -277,6 +268,43 @@ slope_tbl %>%
   )
 ```
 
+# Post-hoc Nighthawk tail length
+
+```{r}
+#| label: fig-post-hoc-lat2
+#| fig-cap: Nighthawk tail length scales allometrically at low breeding latitudes before plateauing (and maybe slightly decreasing) at middle-high latitudes.
+#| fig-pos: 'H'
+
+coni <- analysis_df %>% filter(Species == "Nighthawk") 
+# Originally assessed using a quadratic function but it makes more sense to assess the relationship descriptively and not impose a symmetrical curve, especially given that this is a post-hoc analysis
+coni %>% ggplot(aes(x = B.Lat, y = Tail.comb)) +
+  geom_point() + 
+  stat_smooth() + 
+  labs(x = "Breeding latitude", y = "Tail length")
+```
+
+# Variance partitioning
+
+```{r}
+#| label: fig-var-partitioning
+#| fig-cap: Stacked bar plot showing the unique variance explained by each component of the full model. The unique variance components include latitude, sex, age (in whip-poor-will and European nightjar), shared variance (explained by the model but not uniquely attributable to a variable), and residuals (not explained by the model),
+#| fig-width: 10
+#| fig-height: 4.8
+#| fig-pos: 'H'
+
+order_fac <- c("Latitude", "Sex", "Age", "Shared", "Residuals")
+variance_tbl2 %>%
+  mutate(component = factor(component, levels = order_fac)) %>%
+  ggplot(aes(x = metric, y = pct, fill = component)) +
+  geom_col(width = 0.8) +
+  facet_wrap(~Species, nrow = 1) +
+  labs(x = NULL, y = "Percent of variance", fill = "Component") + 
+  theme(
+    legend.position = "top",
+    axis.text.x = element_text(angle = 60, hjust = 1)
+  )
+```
+
 ```{r}
 #| label: supp-pca-loadings
 
@@ -292,11 +320,14 @@ pc_loadings_tbl <- capri_pca1 %>%
   )
 ```
 
+# PCA biplots and back correlations
+
 ```{r}
 #| label: fig-pca-biplots
 #| fig-cap: PCA biplots of wing, tail, and mass for each species. Points are individuals and vectors show trait loadings; axis orientation is sign-reversed for consistent interpretation across species.
 #| fig-width: 11
 #| fig-height: 4.2
+#| fig-pos: 'H'
 
 pca_plots <- pc_loadings_tbl %>%
   mutate(plot = map2(pc_rev, Species, \(pc, sp) {
@@ -334,41 +365,3 @@ analysis_df %>%
          across(where(is.numeric), round, 2)) %>% 
   gt()
 ```
-
-```{r}
-#| label: fig-post-hoc-lat2
-#| fig-cap: Nighthawk tail length exhibits a quadratic relationship across breeding latitudes.
-
-coni <- analysis_df %>% filter(Species == "Nighthawk") 
-# Should predict() so that model is equivalent by sex
-coni %>% ggplot(aes(x = B.Lat, y = Tail.comb, color = Sex)) +
-  geom_point() + 
-  stat_smooth(method = "lm", formula = y ~ poly(x, 2)) + 
-  labs(x = "Breeding latitude", y = "Tail length")
-
-if(FALSE){
-  # What does allometric scaling look like with wing & mass / tail 
-  coni %>% ggplot(aes(x = Wing.comb, y = Tail.comb, color = Sex)) +
-  geom_point() + 
-  stat_smooth() + 
-  labs(x = "Wing chord", y = "Tail length")
-
-coni %>% ggplot(aes(x = Mass.comb, y = Wing.comb, color = Sex)) +
-  geom_point() + 
-  stat_smooth(method = "lm") + 
-  labs(x = "Wing chord", y = "Tail length")
-}
-
-
-# Spatial plot - probably will delete
-#coni %>% ggplot(aes(x = B.Long, y = B.Lat, color = Tail.comb, size = Tail.comb)) +
-  #geom_jitter(width = 1, height = 1, alpha = .3, shape = 1) 
-```
-
-# Extras
-
-PC axes are often used [@risingMeasurementOverallBody1989] not comparable across studies if the raw data is not shared @theriotHarnessingNaturalHistory2023
-
-Also see @yom-tovRecentSpatialTemporal2011 for discussion of the selection of body size metrics.
-
-Wings shown to be important, especially in migratory species or those that have long periods of relatively uninterrupted flight (eg parrots) - Weeks (2025)

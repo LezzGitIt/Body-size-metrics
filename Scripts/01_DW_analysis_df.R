@@ -5,8 +5,10 @@
 # Load data & libraries --------------------------------------------------
 library(tidyverse)
 library(readr)
+library(dagitty)
+library(lavaan)
 
-capri_df <- read_csv("Derived/Capri_BA_compare02.24.26.csv")
+capri_df <- read_csv("Derived/Capri_BA_compare03.29.26.csv")
 
 # Format ------------------------------------------------------------------
 species_vec <- c("Whip-poor-will", "Nightjar", "Nighthawk")
@@ -73,7 +75,88 @@ analysis_df <- capri_pca1 %>%
   unnest(data) %>% 
   select(-pca)
 
+
+# DAG-data consistency ----------------------------------------------------
+# See 
+
+# NOTE: Age is placeholder for age / sex 
+dag_mod <- dagitty('
+dag {
+
+  bb = "-.5,-.5,.5,.5"
+  Site      [pos="0, -0.45"]
+  Latitude  [exposure, pos="-0.25, 0"]
+  Age       [pos="0.25,0"]
+  Size      [outcome, pos="0,0.45"]
+
+  Site -> Latitude
+  Site -> Age
+  Latitude -> Size
+  Age -> Size
+}
+')
+
+# Examine the conditional independencies implied by the DAG
+impliedConditionalIndependencies(dag_mod)
+
+# Visualize causal assumptions
+plot(dag_mod, node.names = c("Age_sex" = "Age / sex"))
+
+# Format so names match the DAG, separate into list
+df_dag_tests_l <- analysis_df %>% 
+  rename(Site = Site.name,
+         Size = Wing.Chord,
+         Latitude = B.Lat) %>%
+  group_split(Species)
+
+# Select variables, turn factors into numeric 
+df_dag_tests_l2 <- map(df_dag_tests_l, \(df){
+  df %>% select(Site, Age, Latitude, Size) %>%
+    mutate(Site = as.numeric(as.factor(Site)),
+           Age = as.numeric(Age))
+})
+
+# Use lavaan to generate the polychoric correlation matrix
+lav_corr <- map(df_dag_tests_l2, \(df){
+  lavCor(df)
+})
+
+# Test DAG-data consistency
+map2(df_dag_tests_l2, lav_corr, \(df, cor){
+  localTests(x = dag_mod , sample.cov = cor, sample.nobs = nrow(df))
+})
+
+## Conclusions: This 'works', as in it produces estimates and p-values for the the conditional independencies implied by the DAG. However, as Ankan, Wortel, & Textor (2021, doi:10.1002/cpz1.45) recognize, you can't test with categorical variables that have more than two levels.
+
+# > Reduced (remove site) --------------------------------------------
+# What about removing Site and using latitude as a proxy for site? 
+
+# Remove site
+dag_mod_red <- dagitty('
+dag {
+
+  bb = "-.5,-.5,.5,.5"
+  Latitude  [exposure, pos="-0.25, 0"]
+  Age       [pos="0.25,0"]
+  Size      [outcome, pos="0,0.45"]
+
+  Latitude -> Age
+  Latitude -> Size
+  Age -> Size
+}
+')
+plot(dag_mod_red)
+
+# No conditional independencies 
+impliedConditionalIndependencies(dag_mod_red)
+
+# No independencies to test so returns empty dataframes
+map2(df_dag_tests_l2, lav_corr, \(df, cor){
+  localTests(x = dag_mod_red , sample.cov = cor, sample.nobs = nrow(df))
+})
+
 # Export ------------------------------------------------------------------
+stop()
 # Caprimulgid nested df with PCA objects
 saveRDS(capri_pca1, "Rdata/capri_pca1.rds")
 # Dataframe that we will use for analysis

@@ -13,7 +13,7 @@ format: #docx
       - |
         \usepackage{fancyhdr}
         \pagestyle{fancy}
-        \fancyhead[R]{Short title here}
+        \fancyhead[R]{Supplementary information}
         \usepackage{makecell}
         \usepackage{lineno}
         \linenumbers
@@ -21,6 +21,10 @@ format: #docx
         \setlength{\LTleft}{\fill}
         \setlength{\LTright}{\fill}
         \usepackage{tabularray}
+    journal:
+      name: Methods in Ecology and Evolution
+      formatting: doubleblind #doubleblind suppresses authors!, return to preprint
+      cite-style: authoryear
 bibliography: ../Suppfiles/Morphology.bib
 ---
 
@@ -366,8 +370,18 @@ analysis_df %>%
   gt()
 ```
 
+# DAG: Temperature-dependent sex determination in reptiles
+
+![Offspring sex is determined by temperature, instead of by sex chromosomes, in certain reptile groups (e.g., crocodiles, most turtles, and some lizards). Here, part of the causal effect of temperature on body size flows through sex, thus conditioning on sex would isolate only the direct effect of temperature on body size. Whether this is appropriate depends on the biological question and causal estimand of interest.](../Figures/Dag_tsd.png){#fig-dag-tsd}
+
 # Bogert's rule
 
-Traits used in avian studies of Bogert’s rule differ in thermoregulatory relevance, the strength of alternative selection pressures, and temporal lability. The most commonly measured traits were feather reflectance values from the dorsal and ventral sides of the body, with some studies also measuring head plumage. Reflectance from bare parts, such as the bill and tarsus, was measured rarely [e.g., @macedoMacroevolutionBodyExtremities2025]. Importantly, melanism serves numerous functions beyond thermoregulation, including camouflage, UV protection, parasite and pathogen resistance, signaling, and structural durability [@bonser1995melanin; @jaworMelaninOrnamentsHonesty2003; @delheyGlogersRule2017]. Consequently, melanin deposition is a multifunctional trait, with temperature being one of many selective pressures.
+Traits used in avian studies of Bogert’s rule differ in thermoregulatory relevance, the strength of competing selection pressures, and temporal lability. The most commonly measured traits are feather reflectance values from the dorsal and ventral surfaces of the body, and less frequently head plumage; reflectance from bare parts such as the bill and tarsus has been examined only rarely [e.g., @macedoMacroevolutionBodyExtremities2025]. Importantly, melanism serves numerous functions beyond thermoregulation, including camouflage, UV protection, parasite and pathogen resistance, signaling, and structural durability [@bonser1995melanin; @jaworMelaninOrnamentsHonesty2003; @delheyGlogersRule2017]. Consequently, melanin deposition is shaped by multiple selective pressures, with temperature representing only one component of the adaptive landscape.
 
-Reflectance from dorsal plumage and the head likely has greater thermoregulatory relevance than ventral plumage, although this depends partly on species-specific posture and behavior. However, dorsal surfaces may also experience strong competing selection for background matching and UV protection [see Gloger’s rule; @delheyGlogersRule2017], while head plumage and soft parts may be heavily influenced by sexual and social signaling. Because the anterior region like the head and bill are often highly visible during social interactions, these traits may be particularly constrained by selective pressures related to signaling. Soft-part coloration is further distinguished by its temporal flexibility, with coloration capable of changing across weeks, days, or even seconds during signaling interactions [@iversonRoleBareParts2017]. Accordingly, we classify plumage coloration as relatively temporally fixed compared to soft-part coloration, which is highly labile. We further classify head plumage as more flexible than dorsal and ventral body plumage because head feathers are frequently replaced during prealternate molts. As in Figure 1 of the main text, traits with high thermoregulatory relevance, weak alternative functional constraints, and high temporal stability should provide the strongest traits for testing Bogert’s rule.
+Reflectance from dorsal plumage and the head likely has greater thermoregulatory relevance than ventral plumage because these regions are generally more exposed to solar radiation, although this depends on species-specific posture and behavior. However, dorsal surfaces may also experience strong competing selection for camouflage and UV protection [see Gloger’s rule, @delheyGlogersRule2017], while head plumage and bare parts may be strongly shaped by sexual and social signaling. The head, in particular, is often highly visible during social interactions, so it may experience particularly strong signaling-related selection. Bare-part coloration is further distinguished by its high temporal flexibility, with coloration capable of changing across weeks, days, or even seconds during signaling interactions [@iversonRoleBareParts2017]. Accordingly, we classify plumage coloration as relatively temporally fixed compared to bare-part coloration, which is highly labile. We further classify head plumage as more flexible than dorsal and ventral body plumage because head feathers are frequently replaced during prealternate molts [@pyleIdentificationGuideNorth1997; @terrillEvolutionBreedingPlumages2020]. As in Figure 1 of the main text, traits with high thermoregulatory relevance, relatively weak competing selection pressures, and high temporal stability are likely to provide the cleanest inference regarding Bogert’s rule.
+
+![Three-dimensional conceptual space for evaluating regions where reflectance has been measured in avian studies of Bogert’s rule. Trait suitability can be evaluated by scoring traits along thermoregulatory selection, competing functional selection, and temporal stability axes. Traits located in the upper-right region of the conceptual space will provide the clearest inference regarding Bogert’s rule. No single trait is optimal across all three axes, so we recommend selecting multiple complementary regions when testing Bogert’s rule. Unlike Figure 1 in the main text, the “thermoregulatory relevance” axis is decomposed into separate thermoregulatory and functional selection axes. This distinction is useful when traits simultaneously experience strong thermoregulatory and competing functional selection, as is likely the case for dorsal plumage, head plumage, and bare parts. In contrast, some traits may experience weak thermoregulatory selection but also weak competing selection. Under the original 'thermoregulatory relevance' axis, both situations would appear intermediate despite representing biologically distinct processes.](../Figures/Bogerts-3d-conceptual-axes-sylvia.png){#fig-conceptual-axes-bogerts}
+
+{{< pagebreak >}}
+
+# References

@@ -1,5 +1,5 @@
 ---
-title: "Suppementary information: Bergmann's Rule - A practical guide for selecting body size metrics"
+title: "Suppementary information - Bergmann's Rule: a practical guide to body size metrics and covariate adjustment"
 editor: visual
 execute: 
  echo: false
@@ -22,7 +22,7 @@ format: #docx
         \setlength{\LTright}{\fill}
         \usepackage{tabularray}
     journal:
-      name: Methods in Ecology and Evolution
+      name: Ecology Letters
       formatting: doubleblind #doubleblind suppresses authors!, return to preprint
       cite-style: authoryear
 bibliography: ../Suppfiles/Morphology.bib
@@ -49,7 +49,7 @@ theme_set(theme_cowplot())
 
 analysis_df <- read_csv("Derived/analysis_df.csv")
 capri_pca1 <- readRDS("Rdata/capri_pca1.rds")
-load("Rdata/Supp_info_objs.Rdata")
+load("Rdata/Analysis_objs.Rdata")
 ```
 
 # Sex & age distributions across the latitudinal gradient
@@ -89,11 +89,6 @@ metric_labels <- c(
   "PC1" = "PC1",
   "SAtoV.comb" = "SA/V"
 )
-
-analysis_df_z <- analysis_df %>%
-  group_by(Species) %>%
-  mutate(across(all_of(metrics_raw), ~ as.numeric(scale(.x)), .names = "{.col}.z")) %>%
-  ungroup()
 ```
 
 # Slopes all age X sex combinations
@@ -270,6 +265,19 @@ slope_tbl %>%
     legend.position = "top",
     axis.text.x = element_text(angle = 60, hjust = 1)
   )
+```
+
+```{r}
+#| label: fig-t-statistic
+#| fig-cap: The inclusion of age and sex had little effect on the estimated t-statistic $\\beta_{Lat}$. The inclusion of age and sex marginally decreased the mean estimates of $\\beta_{Lat}$ and slightly increased the precision with which it was estimated, so the overall influence on the the estimated t-statistic was marginal.
+#| fig-width: 10
+#| fig-height: 5.5
+#| fig-pos: 'H'
+
+slope_tbl %>% ggplot(aes(model_type, abs(statistic))) +
+  geom_boxplot() + 
+  geom_point(aes(color = Species, shape = metric)) +
+  labs(x = NULL, y = "t statistic")
 ```
 
 # Post-hoc Nighthawk tail length

@@ -1,32 +1,15 @@
 ---
-title: "Bergmann's Rule - A practical guide for selecting body size metrics"
+title: "Bergmann’s rule: a practical guide to body size metrics and covariate adjustment"
 editor: visual
 execute: 
  echo: false
  message: false
  warning: false
  cache: false
-format: #docx
-  elsevier-pdf: 
-    header-includes:
-      - |
-        \usepackage{fancyhdr}
-        \pagestyle{fancy}
-        \fancyhead[R]{Selecting body size metrics for Bergmann's rule}
-        \usepackage{makecell}
-        \usepackage{lineno}
-        \linenumbers
-        \usepackage[margin=1in]{geometry}
-        \setlength{\LTleft}{\fill}
-        \setlength{\LTright}{\fill}
-        \usepackage{tabularray}
-    journal:
-      name: Methods in Ecology and Evolution
-      formatting: doubleblind #doubleblind suppresses authors! Return to preprint
-      cite-style: authoryear
+format: docx
 bibliography: ../Suppfiles/Morphology.bib
 metadata-files: 
-  - ../Suppfiles/abstract_keywords.yml
+  - ../Suppfiles/abstract_keywords_eco_lett.yml
   - ../Suppfiles/authors.yml
 ---
 
@@ -40,7 +23,7 @@ Interpreting size–environment relationships is further complicated by the fact
 
 Body size metrics used in ecological studies generally fall into three broad categories: linear, volumetric, and derived traits. Linear measurements such as body length, leg length, or tail length reflect specific structural components of the body plan and are often relatively fixed once growth is complete. Volumetric traits, most commonly body mass, integrate overall body size but can vary over short timescales in response to condition, resource availability, and life-history stage ['flexible' traits, sensu @gibsonMigratoryShorebirdAdheres2019]. Derived traits combine information from multiple measurements to approximate size, most notably through principal component analysis (PCA), where size is represented as a linear combination of correlated morphological variables, or through ratios intended to approximate biologically relevant properties, such as the surface-area-to-volume [@freemanUnivariateMetricsAre1990; @risingMeasurementOverallBody1989].
 
-::: {#Conceptual-axes-body-size .callout-note}
+::: {#nte-conceptual-axes .callout-note}
 ## Conceptual axes for evaluating body size metrics
 
 Testing Bergmann's rule requires selecting one or several metrics to represent body size. One important concept underlying all trait selection is that of allometric scaling, the idea that morphological traits scale with overall body size [@shingletonAllometryStudyBiological2010; @pelabonEvolutionMorphologicalAllometry2014]. This implies that all morphological traits contain some information regarding a true, but latent, underlying body size (@fig-thermoreg-vs-functional-constraints, panel a). But how does one go about selecting the morphological traits to represent body size in practice? Size traits differ in their biological meaning, statistical behavior, and sensitivity to environmental gradients, and can have important implications for the conclusions drawn regarding adherence to Bergmann's rule [@baileyUsingDifferentBody2020; @teplitskyClimateWarmingBergmanns2014]. Here we present three conceptual axes that jointly determine the suitability of a set of metrics in examining Bergmann’s rule, as well as their strengths and weakness.
@@ -49,37 +32,39 @@ Testing Bergmann's rule requires selecting one or several metrics to represent b
 
 *Linear, volumetric, and derived representations of body size*
 
-Body size proxies differ in the organismal dimensions they reflect, as well as in their practical and interpretive properties.
+Body size proxies differ in the organismal dimensions they reflect, as well as in their practical and interpretive properties. We differentiate between first-order traits, that are either linear or volumetric in nature, and derived traits, which combine first-order traits to obtain a composite index of some sort.
 
--   **Linear traits** measure specific structural components such as appendage lengths or skeletal dimensions, and are largely fixed once an individual reaches maturity. They are often readily available in field and museum datasets, highly repeatable, and biologically transparent [@theriotHarnessingNaturalHistory2023]. However, because they capture individual body components rather than overall volume, they may reflect shape, functional specialization, or biomechanical demands as much as body size. One should be particularly cautious when using small traits (e.g., bill length, size of a single tooth), as these measurements are difficult to collect [low precision and repeatability, @subasingheRepeatabilityValidityPhenotypic2021; @munoz-munozMeasurementErrorMorphometric2010], thus reducing interpretability.
-    -   External linear traits are often viewed as imperfect proxies for the underlying skeletal structures beneath them. In some cases, these traits are more directly tied to functional demands relative to the skeletal traits themselves (e.g., wing length in birds). They may also exhibit greater temporal variability where external tissues or structures are periodically replaced or renewed, such as feathers in birds or tails in some lizards.
--   **Volumetric traits**, most commonly body mass, scale proportionally to organismal volume and metabolic heat production and therefore have strong theoretical relevance to thermoregulation [@kleiber1932body]. However, mass integrates information from both structural size and short-term physiological state like changes in gut fill or defecation, hydration status, or phase in the annual cycle [e.g., migratory fattening, @yom-tovRecentSpatialTemporal2011; @ponziHeritabilitySelectionResponse2018].
--   **Derived traits** combine multiple measurements into composite indices, such as principal components–based size axes or ratios intended to approximate biologically meaningful properties [@risingMeasurementOverallBody1989]. These metrics can efficiently summarize covariation among traits and may increase statistical power, but they reduce interpretability by obscuring the contribution of specific morphological components to observed patterns. Their biological meaning often depends on post hoc interpretation of component loadings or loose mathematical approximations [e.g., $\text{body length}^2$ is proportional to surface area, @dubinerWidespreadRecentChanges2022], which can reduce interpretability and transparency.
+- **Linear traits** measure specific structural components such as appendage lengths or skeletal dimensions, and are largely fixed once an individual reaches maturity. They are often readily available in field and museum datasets, highly repeatable, and biologically transparent [@theriotHarnessingNaturalHistory2023]. However, because they capture individual body components rather than overall volume, they may reflect shape, functional specialization, or biomechanical demands as much as body size. One should be particularly cautious when using small traits (e.g., bill length, size of a single tooth), as these measurements are difficult to collect [low precision and repeatability, @subasingheRepeatabilityValidityPhenotypic2021; @munoz-munozMeasurementErrorMorphometric2010], thus reducing interpretability.
+  - External linear traits are often viewed as imperfect proxies for the underlying skeletal structures beneath them. In some cases, these traits are more directly tied to functional demands relative to the skeletal traits themselves (e.g., wing length in birds). They may also exhibit greater temporal variability where external tissues or structures are periodically replaced or renewed, such as feathers in birds or tails in some lizards.
+- **Volumetric traits**, most commonly body mass, scale proportionally to organismal volume and metabolic heat production and therefore have strong theoretical relevance to thermoregulation [@kleiber1932body]. However, mass integrates information from both structural size and short-term physiological state like changes in gut fill or defecation, hydration status, or phase in the annual cycle [e.g., migratory fattening, @yom-tovRecentSpatialTemporal2011; @ponziHeritabilitySelectionResponse2018].
+- **Derived traits** combine measurements of first-order traits into composite indices, such as principal components–based size axes or ratios intended to approximate biologically meaningful properties [@risingMeasurementOverallBody1989]. These metrics can efficiently summarize covariation among traits and may increase statistical power, but they reduce interpretability by obscuring the contribution of specific morphological components to observed patterns. Their biological meaning often depends on post hoc interpretation of component loadings or loose mathematical approximations [e.g., $\text{body length}^2$ is proportional to surface area, @dubinerWidespreadRecentChanges2022], which can reduce interpretability and transparency.
 
 ### Axis 2: Thermoregulatory relevance
 
 *Relative dominance of thermoregulatory selection versus life-history functional constraints*
 
-All morphological traits are shaped by multiple selective pressures, but the relative importance of thermoregulation versus other functional demands (e.g., locomotion, foraging, reproduction, predator avoidance, signaling) varies across traits, species, and ecological contexts. Some traits are more directly tied to heat production or heat exchange with the environment, whereas others are more strongly shaped by ecological optima largely independent of climate. These competing selective pressures can result in trade-offs and cause traits to deviate from expected size–environment relationships (@fig-thermoreg-vs-functional-constraints, panel b)[@rubalcabaPhysicalConstraintsThermoregulation2022; @xuEcologicalPredictorsInterspecific2023; @friedmanEvolutionMultifunctionalTrait2019]. Consequently, traits more strongly aligned with thermal gradients are generally preferable for testing biogeographical size rules [@yom-tovRecentSpatialTemporal2011]. However, the balance among these selective regimes is inherently species- and system- specific.
+All morphological traits are shaped by multiple selective pressures, but the relative importance of thermoregulation versus other functional demands (e.g., locomotion, foraging, reproduction, predator avoidance, signaling) varies across traits, species, and ecological contexts. Some traits are more directly tied to heat production or heat exchange with the environment, whereas others are more strongly shaped by ecological optima largely independent of climate. These competing selective pressures can result in trade-offs and cause traits to deviate from expected size–environment relationships (@fig-thermoreg-vs-functional-constraints, panel b) [@rubalcabaPhysicalConstraintsThermoregulation2022; @xuEcologicalPredictorsInterspecific2023; @friedmanEvolutionMultifunctionalTrait2019]. Consequently, traits more strongly aligned with thermal gradients are generally preferable for testing biogeographical size rules [@yom-tovRecentSpatialTemporal2011]. However, the balance among these selective regimes is inherently species- and system- specific.
 
-Certain linear traits (e.g., bird legs or bills, elephant ears), are known to have an outsized role in heat exchange with the environment as they often have large surface-areas and specialized physiology to regulate blood flow [@tattersallEvolutionAvianBill2017; @mcqueenBirdsAreBetter2023; @tattersallCopingThermalChallenges2012]. Thus, these are tempting traits to use as metrics of body size as they have high thermoregulatory relevance. However, linear traits like appendages can be challenging to interpret as they are often used to test another ecogeographical rule: Allen's rule [@allen1877influence; @shelomiPracticalGuideCollectionsbased2023]. For example, @baldwinComplementarityAllensBergmanns2023 use absolute instead of relative bill length to examine Allen's rule, arguing that is a better proxy of surface area, and thus heat dissipation capacity. This is challenging to interpret given that Allen's rule makes contradictory predictions to Bergmann's rule when using absolute appendage length [@symondsItsAllRelative2025].
+Certain linear traits (e.g., bird legs or bills, elephant ears) are known to play an outsized role in heat exchange with the environment because they often have large surface areas and specialized physiology regulating blood flow [@tattersallEvolutionAvianBill2017; @mcqueenBirdsAreBetter2023; @tattersallCopingThermalChallenges2012]. Thus, these traits are tempting to use as metrics of body size because of their strong thermoregulatory relevance. However, appendage traits can be difficult to interpret in studies of Bergmann’s rule because they are also central to tests of Allen’s rule, which predicts that appendages should be shorter in cooler climates to reduce surface area available for heat exchange [@allen1877influence; @shelomiPracticalGuideCollectionsbased2023]. Consequently, Allen’s rule can appear contradictory to Bergmann’s rule when using absolute appendage length. This seeming contradiction is largely resolved when Allen’s rule is interpreted in terms of appendage length relative to body size [@symondsItsAllRelative2025], as absolute appendage size may increase in cooler climates (consistent with Bergmann’s rule) while relative appendage size simultaneously decreases (consistent with Allen’s rule). However, there are also strong arguments for using absolute appendage length in tests of Allen’s rule [@baldwinComplementarityAllensBergmanns2023], meaning that interpretation of appendage traits is not always straightforward.
 
 ### Axis 3: Temporal stability
 
 *Biological lability* *of trait expression*
 
-Finally, traits differ in their temporal stability. **Fixed traits** change primarily during development and remain relatively constant thereafter; **flexible traits** can vary substantially over short timescales in response to resource availability, body condition, and reproductive status [@yom-tovRecentSpatialTemporal2011]. Flexible traits like mass are particularly subject to change in migratory species [@guglielmoObeseSuperAthletes2018; @scottSeasonalChangesBody1994]. See @skinnerEnvironmentalGeographicConditions2025 and @gibsonMigratoryShorebirdAdheres2019 for discussions of flexible vs fixed traits in the context of Bergmann's rule in migratory species. See @ongmanBergmannsRuleWhy2026 and @zimovaMechanisticComplexityUnderlies2026 for a further breakdown of flexible traits (i.e., developmental and reversible plasticity).
+Finally, traits differ in their temporal stability. **Fixed traits** change primarily during development and remain relatively constant thereafter; **flexible traits** can vary substantially over short timescales in response to resource availability, body condition, and reproductive status [@yom-tovRecentSpatialTemporal2011]. Without repeat measurements to distinguish 'biological error' [@ponziHeritabilitySelectionResponse2018] from true body size, the variation associated with flexible traits is typically absorbed into the residual variance, thereby increasing uncertainty and potentially attenuating effect estimates. Flexible traits like mass are particularly labile in migratory species [@guglielmoObeseSuperAthletes2018; @scottSeasonalChangesBody1994]. This issue has been highlighted in the context of Bergmann’s rule for migratory taxa [@skinnerEnvironmentalGeographicConditions2025; @gibsonMigratoryShorebirdAdheres2019] and recently expanded to distinguish developmental and reversible plasticity in trait expression [@ongmanBergmannsRuleWhy2026; @zimovaMechanisticComplexityUnderlies2026].
 
 ### Integrating across axes
 
-No single metric performs optimally across all three axes [@theriotHarnessingNaturalHistory2023]. Highly thermally relevant traits like mass are flexible, while selection for fixed structural traits (e.g., appendage length) is often dominated by functional selection (e.g. feeding, locomotion). Derived metrics often improve statistical efficiency but reduce biological interpretability. Thus, robust inference about environment–morphology relationships benefits from using multiple complementary metrics that span these axes rather than relying on a single proxy for body size (@fig-3d-conceptual-axes). Importantly, the placement of traits along these axes does not have to be 'true', or correct in a technical sense. Instead, trait classification is useful to help scientists think critically about trait selection, and to make assumptions transparent for evaluation by the scientific community.
+No single metric performs optimally across all three axes [@theriotHarnessingNaturalHistory2023]. Highly thermoregulatory relevant traits such as mass are often temporally flexible, whereas fixed structural traits (e.g., appendage lengths) may be strongly constrained by alternative functional demands such as feeding, locomotion, or signaling. Derived metrics can improve statistical efficiency and summarize information across multiple traits, but often do so at the expense of biological interpretability. Furthermore, because derived traits are mathematical transformations of underlying measurements, they should generally be viewed as complementary perspectives rather than independent lines of evidence.
+
+Consequently, robust inference about environment–morphology relationships benefits from evaluating multiple complementary traits that span these axes rather than relying on a single proxy for body size (@fig-3d-conceptual-axes). However, the use of multiple traits also increases opportunities for conflicting results and post-hoc interpretation. Researchers should therefore articulate *a priori* expectations regarding the expected (relative) strength of environment–morphology relationships for each trait. When results differ among traits, these expectations can help interpret departures from allometry and evidence along a continuum of support. Importantly, the placement of traits along these axes does not need to be objectively "correct." Rather, the value of the framework lies in encouraging explicit consideration of the biological processes influencing each trait and making those assumptions transparent for evaluation by the scientific community.
 :::
 
-![Any trait can be used as a proxy for body size assuming allometric scaling (i.e., that trait size increases with overall body size). Panel A illustrates baseline allometric expectations where morphological traits scale with overall body size, allowing them to function as proxies for latent body size. Panel b illustrates how traits can depart from allometric expectations when functionally constrained. In this hypothetical example, cranial size does not track overall body size due to changes in diet that also track latitudinal gradients (see discussion).](../Figures/Fig2-allometric_scaling_functional-constraints.png){#fig-thermoreg-vs-functional-constraints}
+![Any trait can be used as a proxy for body size assuming allometric scaling (i.e., that trait size increases with overall body size). Panel A illustrates baseline allometric expectations where morphological traits scale with overall body size, allowing them to function as proxies for latent body size. Panel b illustrates how traits can depart from allometric expectations when functionally constrained. In this hypothetical example, cranial size does not track overall body size due to changes in diet that also track latitudinal gradients. Dietary shifts toward increased carnivory or scavenging at higher latitudes favor higher bite force and more compact cranial morphology.](../Figures/Fig2-allometric_scaling_functional-constraints.png){#fig-thermoreg-vs-functional-constraints}
 
-Beyond metric choice, inference about the effect of latitude on body size depends on model specification and covariate inclusion. In many studies, covariates are added to improve model fit, predictive performance, or precision around the estimand of interest ($\beta_{Latitude}$, or just $\beta_{Lat}$ moving forward). For example, age and sex influence body size in many taxa and are therefore common covariates in studies of ecogeographical rules. However, the role of covariates in estimating the causal effect of interest is rarely made explicit, representing a major shortfall of many ecological studies [@franksEcologyNeedsCausal2025]. Indeed, covariate inclusion can reduce bias when a spurious association exists between latitude and morphology, whereas inappropriate adjustment can introduce bias rather than remove it, underscoring the need for causal reasoning when specifying models [@marshallPrinciplesExperimentalDesign2024; @arifApplyingStructuralCausal2023]. Thus, studies should clearly state the both the biological question and the estimand of interest, the assumed causal structure, and the corresponding adjustment set, either in the text or using visual tools such as directed acyclic graphs [DAGs, @arifApplyingStructuralCausal2023].
+Beyond metric choice, inference about the effect of latitude on body size can depend on the inclusion of covariates. In many studies, covariates are added to improve model fit, predictive performance, or accuracy and precision of the estimand ($\beta_{Latitude}$, or just $\beta_{Lat}$ moving forward). For example, age and sex influence body size in many taxa and are therefore common covariates in studies of ecogeographical rules. However, the role of covariates in estimating the causal effect of interest is rarely made explicit, representing a major shortfall of many ecological studies [@franksEcologyNeedsCausal2025]. Indeed, covariate inclusion can reduce bias when a spurious association exists between latitude and morphology, whereas inappropriate adjustment can introduce bias rather than remove it, underscoring the need for causal reasoning when specifying models [@marshallPrinciplesExperimentalDesign2024; @arifApplyingStructuralCausal2023]. Thus, studies should clearly state both the biological question, the estimand, the assumed causal structure among the variables, and the corresponding adjustment set, either in the text or using visual tools such as directed acyclic graphs [DAGs, @arifApplyingStructuralCausal2023] (@nte-dags-bias-precision).
 
-![3D conceptual space for evaluating body size metrics along the three conceptual axes presented in Box 1: interpretability, thermoregulatory relevance, and temporal stability. Trait suitability can be determined by scoring each trait along these three axes. Traits located in the top right corner (highly responsive to thermoregulatory selection, high temporal stability and interpretability) are highly suitable as metrics representing body size. No single trait is optimal across all three axes, so we recommend selecting multiple complementary proxies of body size in tests of Bergmann’s rule. Note that the thermoregulatory relevance axis can be split into two axes, with functional constraints and the strength of thermoregulatory selection each on their own axis (see supplementary figure 8).](../Figures/Bergs-3d-conceptual-axes-sylvia.png){#fig-3d-conceptual-axes}
+![3D conceptual space for evaluating body size metrics along the three conceptual axes presented in Box 1: interpretability, thermoregulatory relevance, and temporal stability. Trait suitability can be determined by scoring each trait along these three axes. Traits located in the top right corner (highly responsive to thermoregulatory selection, high temporal stability and interpretability) are highly suitable as metrics representing body size. No single trait is optimal across all three axes, so we recommend selecting multiple complementary proxies of body size in tests of Bergmann’s rule. Note that the thermoregulatory relevance axis can be split into two axes, with functional constraints and the strength of thermoregulatory selection each on their own axis (see supplementary figure 9).](../Figures/Bergs-3d-conceptual-axes-sylvia.png){#fig-3d-conceptual-axes}
 
 ```{r}
 #| label: libraries
@@ -97,19 +82,19 @@ library(gt)
 theme_set(theme_cowplot())
 ```
 
-::: {#dags-bias-precision .callout-note}
-## When covariates help, hurt, or bias inference in studies of Bergmann's rule
+::: {#nte-dags-bias-precision .callout-note}
+## Covariates: Precision and bias in studies of Bergmann's rule
 
-Scientists condition on variables for many reasons, some of which are unfounded. For example, when answering a causal question, heuristics involving p-value cutoffs, minimizing information criteria (e.g., AIC), including all pre-treatment covariates, or adopting a “causal salad” approach can all lead to biased estimates CITE McElreath [@arifApplyingStructuralCausal2023]. Instead, causal logic should be used to determine which covariates must be included in the model (i.e., the adjustment set) to estimate the causal estimand of interest, if identification is possible. The principle is to identify indirect (non-causal) connections between the exposure and outcome and condition on variable(s) along these non-causal paths [i.e., 'closing' the backdoor path, @pearlCausality2009].
+Scientists condition on variables for many reasons, some of which are unfounded. For example, when answering causal questions, heuristics based on p-value cutoffs, minimizing information criteria (e.g., AIC), indiscriminately including pre-treatment covariates, or adopting a ‘causal salad’ approach can all lead to biased estimates [@mcelreath2018statistical; @arifApplyingStructuralCausal2023]. Instead, causal logic should be used to determine which covariates to include in the model (i.e., the adjustment set) to obtain an unbiased estimate of the estimand. The principle is to identify the non-causal connections between the exposure and outcome and condition on variable(s) along these non-causal paths [i.e., 'closing' the backdoor path, @pearlCausality2009].
 
-In addition to causal inference, covariate inclusion can influence precision around the estimand of interest. In general, covariates that soak up unexplained variance in the response variable without substantially increasing collinearity with the exposure variable will improve precision, whereas covariates that increase collinearity while explaining little additional variance can reduce certainty around the estimate of interest. Colloquially, covariates can be viewed as influencing the signal-to-noise ratio of the estimated effect, where useful covariates explain “signal” without adding excessive “noise” through collinearity. Precise estimates are preferable, provided they are also unbiased, because they reduce the probability of type II errors.
+In addition to causal inference, covariate inclusion can influence precision around the estimand. In general, covariates that soak up unexplained variance in the response variable without substantially increasing collinearity with the exposure variable will improve precision, whereas covariates that increase collinearity while explaining little additional variance can reduce certainty around the estimate of interest. Colloquially, covariates can be viewed as influencing the signal-to-noise ratio of the estimated effect, where useful covariates explain “signal” without adding excessive “noise” through collinearity. Precise estimates are preferable, provided they are also unbiased, because they reduce the probability of type II errors.
 
-Age and sex are common covariates included in studies of Bergmann’s rule, although the rationale for their inclusion is often not explicitly stated. If age and sex influence body size but are not associated with latitude (panel a), including them in the model will improve the precision with which $\beta_{Lat}$ is estimated. In contrast, if age and sex are non-randomly distributed across latitudes but do not influence body size (panel b), conditioning on them may reduce precision around $\beta_{Lat}$ and increase the probability of a type II error. In both cases, conditioning on age and sex will not influence the expected value of $\beta_{Lat}$. However, if age and sex are both non-randomly distributed across latitudinal gradients and causally influence body size (panels c and d), failing to condition on them will bias estimates of $\beta_{Lat}$. Such demographic structure across latitudinal or elevational gradients may arise through processes such as differential migration in birds and bats [e.g., through dominance-mediated habitat segregation, @paprockiUnderlyingCausesDifferential2025; @barclayPopulationStructureTemperate1991; @cristolDifferentialMigrationRevisited1999], or biased sampling that induces correlations between latitude and demographic composition.
+Age and sex are common covariates included in studies of Bergmann’s rule, although the rationale for their inclusion is often not explicitly stated. If age and sex influence body size but are not associated with latitude (panel a), including them in the model will improve the precision with which $\beta_{Lat}$ is estimated. In contrast, if age and sex are non-randomly distributed across latitudes but do not influence body size (panel b), conditioning on them may reduce precision around $\beta_{Lat}$ and increase the probability of a type II error. In neither case would conditioning on age and sex influence the expected value of $\beta_{Lat}$. On the other hand, if age and sex are both non-randomly distributed across latitudinal gradients and causally influence body size (panels c and d), failing to condition on them will bias estimates of $\beta_{Lat}$. Such demographic structure across latitudinal or elevational gradients may arise through processes such as differential migration in birds and bats [e.g., through dominance-mediated habitat segregation, as in panel c, @paprockiUnderlyingCausesDifferential2025; @barclayPopulationStructureTemperate1991; @cristolDifferentialMigrationRevisited1999], or biased sampling that induces correlations between latitude and demographic composition (panel d).
 
 ![](../Figures/dags_precision_bias.png)
 :::
 
-Here, we examine how conclusions regarding adherence to Bergmann’s rule depend on the body size metric and on model specification in a case study of three nightjar species: Eastern Whip-poor-will (*Antrostomus vociferus*), Common nighthawk (*Chordeiles minor*), and European nightjar (*Caprimulgus europaeus*). Previous work by @skinnerEnvironmentalGeographicConditions2025 demonstrated positive size–latitude relationships in these species when body size was approximated using mass and wing chord, and found that inclusion of age and sex improved model fit based on information-theoretic criteria [@burnhamMultimodelInferenceUnderstanding2004]. However, alternative morphological metrics were not evaluated, covariates were not considered within a causal framework, and their effects on parameter precision were not assessed. Thus, our objectives are threefold. First, we assess how multiple linear, volumetric, and derived body size metrics vary across a latitudinal gradient and whether the inferred support for Bergmann’s rule depends on the metric used. Second, we evaluate how the inclusion of age and sex influence the inferred support for Bergmann’s rule, and use causal logic to interpret conflicting results. Third, we examine how inclusion of age and sex influence the precision with which latitude is estimated. Together, our results illustrate the robustness and limitations of common size proxies, as well as the importance of aligning metric choice and model structure with biological theory and causal objectives when testing ecogeographical rules.
+Here, we examine whether conclusions regarding adherence to Bergmann’s rule depend on the body size metric and on model specification in a case study of three nightjar species: Eastern Whip-poor-will (*Antrostomus vociferus*), Common nighthawk (*Chordeiles minor*), and European nightjar (*Caprimulgus europaeus*). Previous work by @skinnerEnvironmentalGeographicConditions2025 demonstrated positive size–latitude relationships in these species when body size was approximated using mass and wing chord and found that inclusion of age and sex improved model fit based on information-theoretic criteria [@burnhamMultimodelInferenceUnderstanding2004]. However, alternative morphological metrics were not evaluated, covariates were not considered within a causal framework, and their effects on parameter precision were not assessed. Thus, our objectives are threefold. First, we assess how multiple linear, volumetric, and derived body size metrics vary across a latitudinal gradient and whether the inferred support for Bergmann’s rule depends on the metric used. Second, we evaluate how the inclusion of age and sex influence the inferred support for Bergmann’s rule, and use causal logic to interpret conflicting results. Third, we examine how inclusion of age and sex influence the precision with which latitude is estimated. Together, our results illustrate the robustness and limitations of common size proxies, as well as the importance of aligning metric choice and model structure with biological theory and causal objectives when testing ecogeographical rules.
 
 # Methods
 
@@ -120,6 +105,7 @@ Here, we examine how conclusions regarding adherence to Bergmann’s rule depend
 analysis_df <- read_csv("Derived/analysis_df.csv") %>% 
   mutate(Age = factor(Age, levels = c("Young", "Adult", "Unk")),
          Sex = factor(Sex))
+load("Rdata/Analysis_objs.Rdata")
 ```
 
 ```{r}
@@ -135,11 +121,6 @@ metric_labels <- c(
   "SAtoV.comb" = "SA/V"
 )
 
-analysis_df_z <- analysis_df %>%
-  group_by(Species) %>%
-  mutate(across(
-    all_of(metrics_raw), ~ as.numeric(scale(.x)), .names = "{.col}.z")
-    ) %>% ungroup()
 metrics_z <- paste0(metrics_raw, ".z")
 ```
 
@@ -192,9 +173,13 @@ ss <- model_tbl %>%
 
 ## Comparing metrics of body size
 
-We used mass, wing, and tail from @skinnerEnvironmentalGeographicConditions2025 as proxies of body size, as well as two derived metrics that were functions of the three morphological metrics. We used the first PC axis of the previous three morphological measures, as well as the ratio of $\text{wing length}^2 / \text{ mass}$, which has been used to represent the surface-area-to-volume ratio (SA/V) in past studies [e.g., @nwaoguTemperatureAridityDetermine2018]. Table 1 shows how we classified these five traits along the axes presented in Box 1. Analyses were restricted to individuals with all three morphological measurements (i.e., complete cases) to ensure comparability across models using different response variables; sample sizes were `r ss[1]` individuals for whip-poor-will, `r ss[2]` for European nightjar, and `r ss[3]` for nighthawk.
+We used the first-order traits of mass, wing, and tail from @skinnerEnvironmentalGeographicConditions2025 as proxies of body size, as well as two derived metrics that were functions of the three morphological metrics. We used the first PC axis (PC1) of the previous three morphological measures, which is often interpreted as an overall size axis [e.g., @pigotMacroevolutionaryConvergenceConnects2020], as well as the ratio of $\text{wing length}^2 / \text{ mass}$, which has been used to represent the surface-area-to-volume ratio (SA/V) in past studies [e.g., @nwaoguTemperatureAridityDetermine2018]. Analyses were restricted to individuals with all three morphological measurements (i.e., complete cases) to ensure comparability across models using different response variables; sample sizes were `r ss[1]` individuals for whip-poor-will, `r ss[2]` for European nightjar, and `r ss[3]` for nighthawk.
 
-We assessed objective one by comparing whether inferred support for Bergmann’s rule varied with body size proxy. We considered models to support adherence to Bergmann's rule if the 95% confidence interval of $\beta_{Lat}$ did not overlap 0 and the effect was in the direction predicted by Bergmann's rule (positive for all metrics except SA/V).
+We assessed objective one by comparing whether inferred support for Bergmann’s rule varied with body size proxy. We considered models to support adherence to Bergmann's rule if the 95% confidence interval of $\beta_{Lat}$ did not overlap zero and the effect was in the direction predicted by Bergmann's rule (positive for all metrics except SA/V).
+
+### Latitude-metric expectations
+
+Of first-order traits, we expect that mass and wing will respond most strongly to latitude given their high thermoregulatory relevance [@weeksLongerWingBones2025; @lewdenHowBirdsDissipate], although latitude-mass relationships may be estimated with less certainty given that mass is highly flexible. We expect tail length to show a weaker relationship with latitude given that it has little thermoregulatory relevance (i.e., feathers are inert tissues). Among derived traits, we expect PC1 to broadly reflect the average response of the traits contributing most strongly to the axis, although the exact relationship will depend on the loading structure and covariance among traits. We expect surface-area-to-volume ratios ($\text{wing length}^2/\text{mass}$) to show the weakest and most difficult-to-interpret relationships with latitude because proportional changes in wing length and mass can offset one another, potentially obscuring underlying latitudinal clines. Table 1 shows how these five traits were classified along the conceptual axes presented in Box 1.
 
 \begin{table}[htbp]
 \centering
@@ -216,8 +201,8 @@ Functional constraints &
 Temporal stability &
 Key limitation \\
 
-Wing length & Linear & Strong & Migration, foraging & Fixed & Dominated by non-thermal selection \\
-Tail length & Linear & Weak & Maneuverability & Fixed & '' '' \\
+Wing length & Linear & Strong & Migration, foraging & Fixed & Strong non-thermal selection \\
+Tail length & Linear & Weak & Maneuverability & Fixed & Weak thermo-regulatory selection \\
 Body mass & Volumetric & Strong & Energetics, condition & Highly flexible & Flexibility \\
 Wing$^2$/mass & Derived & Theoretically strong & Mixed & Mixed & Reduced transparency \\
 PC axis 1 & Derived & Loadings-dependent & Loadings-dependent & Loadings-dependent & Low interpretability \\
@@ -229,64 +214,55 @@ PC axis 1 & Derived & Loadings-dependent & Loadings-dependent & Loadings-depende
 
 @skinnerEnvironmentalGeographicConditions2025 suggested that variation in sex and age ratios could confound their estimate of interest $\beta_{Lat}$. However, they did not specify their causal assumptions or examine the empirical distribution of sex and age ratios across latitude (except in their 'full-annual-cycle analysis') to see if these variables could indeed confound their estimand. Instead, they relied on an information-theoretic approach [@burnhamMultimodelInferenceUnderstanding2004] to assess gains in model fit with the inclusion of age or sex. The authors ultimately concluded that these were important covariates to include where possible, and thus they stratified by both age and sex in whip-poor-wills and European nightjars, and by sex in nighthawks.
 
-In the present manuscript, we compare how the estimand of interest ($\beta_{Lat}$) changes with the inclusion of age, sex, or both variables. Importantly, age and sex are structured along the latitudinal gradient in European nightjars and whip-poor-wills in the present data set (Supplementary Figure 1). Thus, objective two was achieved by examining how the estimate of the mean, as well as the size of the 95% confidence intervals (a proxy for the precision of the estimate), varied depending on the model specification. We also examined age and sex from a causal inference perspective to determine if they were confounding variables, as originally posited by @skinnerEnvironmentalGeographicConditions2025.
+In the present manuscript, we compare how the estimand ($\beta_{Lat}$) changes with the inclusion of age, sex, or both variables. Importantly, age and sex are structured along the latitudinal gradient in European nightjars and whip-poor-wills in the present data set (Supplementary Figure 1). Thus, objective two was achieved by examining how the estimate of the mean, as well as the size of the 95% confidence intervals (a proxy for the precision of the estimate), varied depending on the model specification. We also examined age and sex from a causal inference perspective to determine if they were confounding variables, as originally posited by @skinnerEnvironmentalGeographicConditions2025.
 
 ## Statistical models
 
-In both objectives, all five proxies of body size (response variable) were fit as a function of breeding latitude (the estimand of interest) and different combinations of age or sex (covariates). For objective one, we included age and sex in whip-poor-wills and European nightjars, and just sex in nighthawks as nighthawks were rarely aged. We used latitude over temperature given that @skinnerEnvironmentalGeographicConditions2025 found more support for geographical models over temperature models. This resulted in 15 models (5 body size proxies in each of 3 species). For objectives two and three, we fit four models for each species and body size proxy: 1) latitude, 2) latitude + age, 3) latitude + sex, and 4) latitude + age + sex. The only exception was for nighthawks where we fit two models: 1) latitude and 2) latitude + sex. This resulted in 60 models per species in whip-poor-wills and European nightjars, and 30 models in nighthawks. Response variables were mean-centered and scaled within species to improve comparability of effect sizes between species and body size proxy (hereafter, 'species x size metric') combinations. Models were fit using ordinary least squares regression.
-
-## Use of artificial intelligence
-
-Artificial intelligence was used in both text editing and in code generation. In text editing we asked that OpenAI’s chatGPT (model GPT-5.3) serve as a critical reviewer, asking clarifying questions and improving the flow of the manuscript. In code generation, the primary author provided OpenAI’s agent (model GPT 5-mini) a clear outline of the goals of the analysis and the required steps. The lead author drafted code in accordance with the objectives and the agent helped to implement the full workflow. The primary author extensively tested the code and rewrote any code that was unclear. All text and analyses were reviewed by the primary author.
+In both objectives, all five proxies of body size (response variable) were fit as a function of breeding latitude (the estimand) and different combinations of age or sex (covariates). For objective one, we included age and sex in whip-poor-wills and European nightjars, and just sex in nighthawks as nighthawks were rarely aged. We used latitude over temperature given that @skinnerEnvironmentalGeographicConditions2025 found more support for geographical models over temperature models. This resulted in 15 models (5 body size proxies in each of 3 species). For objectives two and three, we fit four models for each species and body size proxy: 1) latitude, 2) latitude + age, 3) latitude + sex, and 4) latitude + age + sex. The only exception was for nighthawks where we fit two models: 1) latitude and 2) latitude + sex. This resulted in 20 models per species in whip-poor-wills and European nightjars, and 10 models in nighthawks. Response variables were mean-centered and scaled within species to improve comparability of effect sizes between species and body size proxy (hereafter, 'species x size metric') combinations. Models were fit using ordinary least squares regression.
 
 # Results
 
 ## Objectives 1 and 2 - Adherence to Bergmann's rule
 
-Inference regarding Bergmann's rule was generally robust to the body size metric used. Thirteen of fifteen species x size metric combinations did not overlap 0 and were in the direction predicted by Bergmann's rule (@fig-slope-compare-conditioning). Nighthawk tail length and the surface-area-to-volume ratio in the whip-poor-will (only when sex was not included in the model) had effects overlapping zero (@fig-slope-compare-conditioning), though effects were in the predicted direction (@fig-all-slopes-single-graph). The linear regression equations relating latitude to body size were influenced by the size metric utilized, where $\beta_{Lat}$ tended to be steepest with mass, wing chord and PC1 (the latter two always being very similar), and the least steep when using tail length or the surface-area-to-volume ratio as the size metric (@fig-slope-compare-conditioning, @fig-all-slopes-single-graph). Slopes for all species, age, and sex combinations can be found in Supplementary figure 2.
+Inference regarding Bergmann's rule was generally robust to the body size metric used. Thirteen of fifteen species x size metric combinations did not overlap 0 and were in the direction predicted by Bergmann's rule (@fig-slope-compare-conditioning). Nighthawk tail length and the surface-area-to-volume ratio in the whip-poor-will (only when sex was not included in the model) had effects overlapping zero (@fig-slope-compare-conditioning), though effects were in the predicted direction (@fig-all-slopes-single-graph). The linear regression equations relating latitude to body size were influenced by the size metric utilized, where $\beta_{Lat}$ tended to be steepest with PC1 ($\bar\beta$ = `r filter(slopes_avg, metric == "PC1")$estimate`, $\bar t$ = `r filter(slopes_avg, metric == "PC1")$statistic`), followed by wing chord ($\bar\beta$ = `r filter(slopes_avg, metric == "Wing")$estimate`, $\bar t$ = `r filter(slopes_avg, metric == "Wing")$statistic`) and mass ($\bar\beta$ = `r filter(slopes_avg, metric == "Mass")$estimate`, $\bar t$ = `r filter(slopes_avg, metric == "Mass")$statistic`), and the least steep when using tail length ($\bar\beta$ = `r filter(slopes_avg, metric == "Tail")$estimate`, $\bar t$ = `r filter(slopes_avg, metric == "Tail")$statistic`) or the surface-area-to-volume ratio ($\bar\beta$ = `r filter(slopes_avg, metric == "SA/V")$estimate`, $\bar t$ = `r filter(slopes_avg, metric == "SA/V")$statistic`) as the size metric (@fig-slope-compare-conditioning, @fig-all-slopes-single-graph). The uncertainty around $\beta_{Lat}$ was not systematically higher for mass than other metrics (mean $\overline{\text{SE}}_\text{Mass}$ = `r filter(slopes_avg, metric == "Mass")$std.error`, range for other metrics: `r min(se_other_range)`–`r max(se_other_range)`). Slopes for all species, age, and sex combinations can be found in Supplementary figure 2.
+
+The inclusion of age and sex slightly reduced estimates of $\beta_{Lat}$, although the magnitude and direction of these changes varied among species and metrics. In European nightjar, including age slightly reduced the magnitude of $\beta_{Lat}$, whereas estimates in Common Nighthawk were largely unchanged by the inclusion of sex. Effects were more variable in Eastern Whip-poor-wills, where age and sex generally reduced estimates for linear metrics (wing, tail, and PC1) but increased effect sizes for body mass and the surface-area-to-volume ratio (when stratified by sex). Despite these shifts, biological conclusions were unchanged in all cases except the whip-poor-will surface-area-to-volume ratio (@fig-slope-compare-conditioning).
 
 ```{r}
-#| label: slope-estimates-latitude
+#| label: slope-averages
+#| include: false
 
-slope_specs <- function(species_name) {
-  if (species_name == "Nighthawk") {
-    c("Latitude" = "B.Lat", "+ Sex" = "B.Lat + Sex")
-  } else {
-    c(
-      "Latitude" = "B.Lat",
-      "+ Age" = "B.Lat + Age_grp",
-      "+ Sex" = "B.Lat + Sex",
-      "+ Age + Sex" = "B.Lat + Age_grp + Sex"
-    )
-  }
-}
+slopes_lat <- slope_tbl %>% filter(model_type == "Latitude") 
+# By metric
+slopes_avg <- slopes_lat %>%
+  mutate(statistic = abs(statistic)) %>%
+  reframe(
+    estimate = mean(estimate),
+    std.error = mean(std.error),
+    mean_ci = mean(ci.size),
+    statistic = mean(statistic),
+    std_dev_t = sd(statistic),
+    .by = metric
+    ) %>%
+  mutate(
+    estimate  = round(estimate,  3),
+    std.error = round(std.error, 4),
+    statistic = round(statistic, 1),
+    std_dev_t = round(std_dev_t, 2),
+    mean_ci   = round(mean_ci,   4)
+  )
+slopes_avg %>% arrange(desc(statistic))
 
-extract_lat_slope <- function(dat, metric, model_label, rhs) {
-  mod <- lm(as.formula(glue("{metric} ~ {rhs}")), data = dat)
-  tidy(mod, conf.int = TRUE) %>%
-    filter(term == "B.Lat") %>%
-    mutate(
-      metric = recode(str_remove(metric, "\\.z$"), !!!metric_labels),
-      model_type = model_label,
-      estimate = estimate,
-      conf.low = conf.low,
-      conf.high = conf.high,
-      .keep = "none"
-    )
-}
+se_other_range <- filter(slopes_avg, metric != "Mass")$std.error
 
-slope_tbl <- analysis_df_z %>%
-  group_by(Species) %>%
-  nest() %>%
-  mutate(slopes = map2(data, Species, function(d, sp) {
-    specs <- slope_specs(sp)
-    map(metrics_z, function(m) {
-      imap(specs, function(rhs, lab) extract_lat_slope(d, m, lab, rhs)) %>% list_rbind()
-    }) %>% list_rbind()
-  })) %>%
-  select(Species, slopes) %>%
-  unnest(slopes) %>% 
-  mutate(model_type = factor(model_type, levels = c("Latitude", "+ Age", "+ Sex", "+ Age + Sex")))
+# By species
+slopes_lat %>%
+  reframe(
+    estimate = mean(abs(estimate)),
+    std.dev = sd(abs(statistic)),
+    statistic = mean(abs(statistic)),
+    .by = Species
+  )
 ```
 
 ```{r}
@@ -295,7 +271,8 @@ slope_tbl <- analysis_df_z %>%
 #| fig-width: 8.5
 
 # Mean slopes of latitude by model and metric
-ggplot(slope_tbl, aes(x = metric, y = estimate, color = model_type)) +
+slope_tbl %>% 
+  ggplot(aes(x = metric, y = estimate, color = model_type)) +
   geom_errorbar(
     aes(ymin = conf.low, ymax = conf.high),
     width = 0,
@@ -332,7 +309,7 @@ pred_single <- analysis_df_z %>%
   nest() %>%
   mutate(models = map2(data, Species, function(d, sp) {
     map(metrics_z, function(m) {
-      mod <- lm(as.formula(glue("{m} ~ {rhs_full[[sp]]}")), data = d) 
+      mod <- lm(as.formula(glue("{m} ~ {rhs_full[[sp]]}")), data = d) # ~ B.Lat
       tibble(metric = m, model = list(mod))
     }) %>% list_rbind()
   })) %>%
@@ -351,10 +328,12 @@ pred_single <- analysis_df_z %>%
 
 ```{r}
 #| label: fig-all-slopes-single-graph
-#| fig-cap: Comparison of lines of best fit using five different metrics of body size. To reduce clutter, we show the relationship just for adult males. 
+#| fig-cap: Comparison of lines of best fit using five different metrics of body size. We reversed the directionality of the surface-area-to-volume ratio to improve comparability. To reduce clutter, we show the relationship just for adult males. 
 #| fig-width: 8.5
 
-ggplot(pred_single, aes(x = B.Lat, y = fit, color = metric)) +
+pred_single %>% 
+  mutate(fit = ifelse(metric == "SA/V", -fit, fit)) %>%
+  ggplot(aes(x = B.Lat, y = fit, color = metric)) +
   geom_line(linewidth = 1.05) +
   facet_wrap(~Species, nrow = 1) +
   labs(
@@ -364,76 +343,75 @@ ggplot(pred_single, aes(x = B.Lat, y = fit, color = metric)) +
   )
 ```
 
-```{r}
-#| label: export
-#| include: false
-
-save(analysis_df_z, slope_tbl, file = "Rdata/Supp_info_objs.Rdata")
-```
-
 ## Objective 3 - Precision around the estimand
 
-The inclusion of age and sex did not alter the estimates of $\beta_{Lat}$ in a predictable direction, or enough to change the biological conclusion (@fig-slope-compare-conditioning), although their inclusion tended to slightly increase the precision around the mean (i.e., the confidence intervals were narrower; Supplementary figure 3). Estimates of $\beta_{Lat}$ were attenuated when including age in European nightjar, whereas the mean estimate $\beta_{Lat}$ in nighthawk was not noticably influenced by the inclusion of sex. The influence of age and sex on the estimate of $\beta_{Lat}$ was more nuanced in whip-poor-wills, generally attenuating in linear metrics (i.e., wing and tail) but increasing the effect size in mass and the surface-area-to-volume ratio (when stratified by sex).
+The inclusion of age and sex also tended to increase precision around $\beta_{Lat}$, resulting in narrower confidence intervals (Supplementary Figure 3). Because these gains in precision generally coincided with slightly reduced estimates of $\beta_{Lat}$ there was little overall change in the corresponding t-statistics (Supplementary Figure 4).
 
 # Discussion
 
-The present manuscript assessed Bergmann's rule using multiple metrics of body size in three nightjar species to determine if size metric selection and the inclusion of covariates influenced biological conclusions. Across species, inference regarding Bergmann's rule was generally robust to the metric used to approximate body size. These consistent results from size traits occupying distinct regions of the conceptual space outlined in Box 1 strongly suggest that nightjars adhere to Bergmann's rule [as in @skinnerEnvironmentalGeographicConditions2025]. However, the strength of support varied among metrics, and there were two species x size metric combinations where biological inference changed depending on the trait used or the inclusion of covariates. Inference would change in nighthawks if using tail length to approximate body size, or if using surface-area-to-volume ratios in whip-poor-wills (when not conditioning on sex). With the exception of surface-area-to-volume ratios in whip-poor-wills, the inclusion of age and sex covariates did not greatly influence our estimate of $\beta_{Lat}$, and the direction of change was not predictable.
+The present manuscript assessed Bergmann's rule using multiple metrics of body size in three nightjar species to determine if size metric selection and the inclusion of covariates influenced biological conclusions. Across species, inference regarding Bergmann's rule was generally robust to the metric used to approximate body size. These consistent results from size traits occupying distinct regions of the conceptual space outlined in Box 1 strongly suggest that nightjars adhere to Bergmann's rule [as in @skinnerEnvironmentalGeographicConditions2025]. However, the strength of support varied among metrics, and there were two species x size metric combinations where biological inference changed depending on the trait used or the inclusion of covariates. Inference would change in nighthawks if using tail length to approximate body size, and in whip-poor-wills when using surface-area-to-volume ratios when sex was not included as a covariate. Otherwise, the inclusion of age and sex covariates tended to marginally reduce estimates of $\beta_{Lat}$ while slightly improving the precision with which it was estimated.
 
 ## Metrics of body size
 
-Inference regarding adherence to Bergmann's rule was generally consistent across body size metrics, although there were a few exceptions. Nighthawk tail length did not increase with latitude, which is likely because tail length has little thermoregulatory relevance yet is strongly constrained by flight efficiency and maneuverability [@balmfordHowNaturalSelection1995]. A post-hoc analysis fitting a loess smoother with breeding latitude showed that tail length plateaus at middle latitudes and even decreases at higher latitudes (Supplementary figure 3). One possibility is that tail length scales with body size at low to mid latitudes, but at higher latitudes increased selective pressure for flight efficiency (and possibly relaxed selection for maneuverability in more open habitats) causes tail length to plateau. Nighthawks winter predominantly in Brazil, and thus migration distance increases at more northerly breeding latitudes [@knightComprehensiveEstimationSpatial2021]. Increased drag from longer tails may be too costly with longer migrations. Importantly, we would not interpret lack of support in this one species × size metric as negating the consistent trends observed in the other 14 species × size metrics.
+Inference regarding adherence to Bergmann's rule was generally consistent across body size metrics, although the magnitude of inferred support varied. Our results were largely consistent with the expectations we outlined in the methods - of first-order metrics, wing and mass generally adhered most strongly to Bergmann's rule, whereas tail length showed a weaker relationships with latitude. Wing length and mass are both thought to be faithful representations of body size [@goslerFieldDeterminationBody1998; @freemanUnivariateMetricsAre1990] as well as strongly influenced by thermoregulatory selection for heat dissipation [during flight, @weeksLongerWingBones2025; @lewdenHowBirdsDissipate] and heat production, respectively. Wing length may represent a useful compromise between thermoregulatory relevance and functional constraint. Although wing morphology is subject to strong aerodynamic selection, many aspects of flight performance scale predictably with overall body size, allowing wing length to remain tightly correlated with body size across individuals. Interestingly, uncertainty around $\beta_{Lat}$ was not consistently higher when mass was used as the response, despite mass exhibiting greater biological variability than linear measurements [@ponziHeritabilitySelectionResponse2018]. This suggests that the underlying latitude-mass relationship may be even stronger than estimated here, with the additional biological variation in mass partially obscuring an otherwise more robust signal. Tail length showed relatively weak support for Bergmann's rule in European nightjars and whip-poor-wills, and did not increase linearly with latitude in nighthawks. In the rest of this section, we will focus on alternative drivers of tail length and how functional constraints may cause tail to depart from allometric expectations, as well as interpretation of the derived metrics, which are less straightforward than the first-order metrics.
 
-These results suggest that tail length may sit closer to the “functionally constrained” end of Axis 1 (@fig-3d-conceptual-axes), causing a departure from isometric scaling at middle and high latitudes. It is unlikely that this general phenomena is limited to birds [e.g., @he2023global; @rubalcabaPhysicalConstraintsThermoregulation2022]. For example, in mammals, dietary shifts toward increased carnivory or scavenging at higher latitudes [or in harsher climates, @vullaCarnivoryPositivelyCorrelated2009; @magounSummerWinterDiets1997] can favor higher bite force and more compact cranial morphology [@vanvalkenburghDejaVuEvolution2007]. This could constrain the elongation of skull elements that would otherwise scale with body size (@fig-thermoreg-vs-functional-constraints). Thus, traits may initially track overall size but deviate where functional constraints dominate, leading to nonlinear or dampened responses across environmental gradients.
+Tail length showed a relatively weak relationship with latitude compared to other traits. This is likely because tail length has little thermoregulatory relevance yet is still constrained by flight efficiency and maneuverability [@balmfordHowNaturalSelection1995]. Nighthawk tail length did not increase (linearly) with latitude, thus we fit a post-hoc loess smoother with breeding latitude to examine trends. We found that tail length plateaus at middle latitudes and even decreases at higher latitudes (Supplementary figure 5). One possibility is that tail length scales with body size at low to mid latitudes, but at higher latitudes increased selective pressure for flight efficiency (and possibly relaxed selection for maneuverability in more open habitats) causes tail length to plateau. Nighthawks winter predominantly in Brazil, and thus migration distance increases at more northerly breeding latitudes [@knightComprehensiveEstimationSpatial2021]. Increased drag from longer tails may be too costly with longer migrations. These results suggest that tail length may sit closer to the “functionally constrained” end of Axis 1 (@fig-3d-conceptual-axes), causing a departure from isometric scaling at middle and high latitudes. Importantly, we would not interpret lack of support in this one species × size metric as negating the consistent trends observed in the other eight species × (first-order) size metrics.
 
-There was mixed evidence for Bergmann's rule when using $\text{wing}^2 / \text{ mass}$, a proxy for the surface-area-to-volume ratio, as the response variable in whip-poor-wills. While we support the theoretical underpinnings of this variable [i.e., that surface-area-to-volume ratio is the true metric under selection, @baldwinComplementarityAllensBergmanns2023], the tenuous mathematical assumptions and reduced interpretability are serious drawbacks of this metric. First, $\text{wing length}^2$ is supposed to scale proportionally with overall body surface area [@nwaoguTemperatureAridityDetermine2018], but this assumption is highly dependent upon the body shape of the bird. Nightjars likely violate this assumption given that their wings are long compared to their overall body size. Furthermore, this metric alone does not tell you how the individual body size metrics are responding to latitude or temperature. For example, if we found that $\text{wing}^2 / \text{ mass}$ does not decrease with latitude in whip-poor-wills, is this because neither wing or mass responded to the gradient in question? Or because both responded proportionally? Importantly, the metric could also produce contradictory results relative to its input traits. Hypothetically, if both wing and mass increase with latitude, but wing increases more rapidly, you could see an increase in the surface-area-to-volume ratio with latitude. Thus, the surface-area-to-volume ratio would suggest an inverse Bergmannian pattern despite that both wing and mass align with Bergmann's prediction. Thus, the metric has a nice theoretical justification but is challenging to implement in practice.
+The derived metrics do not stand as independent evidence of adherence to Bergmann's rule, but instead should be viewed as alternative summaries or perspectives on the underlying morphology. $\text{Wing}^2 / \text{ mass}$, a proxy for the surface-area-to-volume ratio, showed the weakest relationship with latitude across all metrics. While we support the theoretical underpinnings of this variable [i.e., that surface-area-to-volume ratio is the true metric under selection, @baldwinComplementarityAllensBergmanns2023; @skinnerBergmannAllenUnified2026], the tenuous mathematical assumptions and reduced interpretability are serious drawbacks of this metric. $\text{Wing length}^2$ is supposed to scale proportionally with overall body surface area [@nwaoguTemperatureAridityDetermine2018], but this assumption is highly dependent upon the body shape of the bird. Nightjars likely violate this assumption given that their wings are long compared to their overall body size. Moreover, the metric obscures how the underlying traits contribute to observed patterns. A weak relationship with latitude could arise because neither trait responds to latitude, or because both respond proportionally.
 
-The remaining metrics are fairly straightforward to interpret, perhaps with the exception of the first principal components axis. PCA is a variable reduction technique that creates linear combinations of the input variables. The first PC axis is oriented such that it explains the greatest amount of variation in the input variables and is often interpreted as an overall size axis [e.g., @pigotMacroevolutionaryConvergenceConnects2020]. This is intuitively appealing, as it produces a single “body size” value that summarizes covariation among traits. While PCA axes are statistically efficient, they often lack transparent biological meaning and can obscure which morphological components are driving observed size–environment relationships. This can be partially addressed by examining factor loadings or by correlating PC scores with the contributing traits, but it is still not always clear whether the observed size–environment relationship is dominated by one or a few traits, or equally influenced by all input traits. In this case study, PC axis 1 was dominated by wing length in European nightjar and whip-poor-will (Supplementary figure 6; Supplementary table 1); thus, models using wing length and PC axis 1 (as the body size metric) produced very similar results. In nighthawks, PC axis 1 was nearly equally influenced by wing length and mass (Supplementary figure 6; Supplementary table 1), and the line of best fit of PC axis 1 fell between those of wing and mass.
+Interestingly, the first PC axis (PC1), on the other hand, had the strongest average relationship with latitude of all size metrics. This likely reflects PCA's ability to concentrate variation shared among multiple correlated traits while filtering trait-specific noise. This is intuitively appealing, as it produces a single “body size” value that summarizes covariation among traits often increasing the signal-to-noise ratio, and thus, statistical power. However, this efficiency comes at the cost of biological transparency because it is not always clear which traits are driving the observed relationship. This can be partially addressed by examining factor loadings or by correlating PC scores with the contributing traits. For example, in this case study, PC1 was dominated by wing length in European nightjar and whip-poor-will (Supplementary figure 7; Supplementary table 1); thus, models using wing length and PC1 (as the body size metric) produced very similar results. In nighthawks, PC axis 1 was nearly equally influenced by wing length and mass (Supplementary figure 7; Supplementary table 1), and the line of best fit of PC axis 1 fell between those of wing and mass.
 
 ## Conditioning on age and sex in studies of Bergmann's rule
 
-Past work has highlighted the importance of accounting for age / sex dimorphism in studies of Bergmann's rule [@theriotHarnessingNaturalHistory2023; @yom-tovRecentSpatialTemporal2011; @shelomiPracticalGuideCollectionsbased2023]. Indeed, if sex and age ratios differ along latitudinal gradients and also influence body size, they will bias $\beta_{Lat}$ if they are not modeled as covariates. However, whether to condition on these variables depends on the exact research question as well as the data generating process. In our case study, one research group captured females on nests (in addition to using playback) to answer questions related to whip-poor-will reproductive biology [@souza-coleUnderstandingDielActivity2021]. The distinct methodology at this particular site resulted in a very biased sample that varied with latitude (Box 2, panel d). In this case, controlling for sex was critical to obtain unbiased estimates of $\beta_{Lat}$, particularly when making inference using $\text{wing}^2 / \text{ mass}$ as the size proxy. In questions of Bergmann's rule, conditioning on age / sex will generally be the right move from a causal perspective, but rare cases exist where it may not be. For example, if temperature directly impacted the sex or age ratio (e.g. temperature-dependent sex determination in reptiles), then conditioning on age / sex would remove part of the pathway through which temperature influences body size (Supplementary figure 7). This highlights the importance of clearly defining the research question(s) and associated estimands of interest [@franksEcologyNeedsCausal2025].
+Past work has highlighted the importance of accounting for age / sex dimorphism in studies of Bergmann's rule [@theriotHarnessingNaturalHistory2023; @yom-tovRecentSpatialTemporal2011; @shelomiPracticalGuideCollectionsbased2023]. Indeed, if sex and age ratios differ along latitudinal gradients and also influence body size, they will bias $\beta_{Lat}$ if they are not modeled as covariates. However, whether to condition on these variables depends on the exact research question as well as the data generating process. In our case study, one research group captured females on nests (in addition to using playback) to answer questions related to whip-poor-will reproductive biology [@souza-coleUnderstandingDielActivity2021]. The distinct methodology at this particular site resulted in a very biased sample that varied with latitude (Box 2, panel d). In this case, controlling for sex was critical to obtain unbiased estimates of $\beta_{Lat}$, particularly when making inference using $\text{wing}^2 / \text{ mass}$ as the size proxy. In questions of Bergmann's rule, conditioning on age / sex will generally be the right move from a causal perspective, but rare cases exist where it may not be. For example, if temperature directly impacted the sex or age ratio (e.g. temperature-dependent sex determination in reptiles), then conditioning on age / sex would remove part of the pathway through which temperature influences body size (Supplementary figure 8). This highlights the importance of clearly defining the research question(s) and associated estimands [@franksEcologyNeedsCausal2025].
 
-The other reason that people may chose to include age or sex in models is to increase the precision around the estimate of $\beta_{Lat}$. In our case study, including these covariates often improved precision, although in rare cases precision decreased (for the reasons discussed in Box 2). For example, adding age to Nightjar and whip-poor-will models with $\text{wing}^2 / \text{ mass}$ as the response variable explained negligible variance (Supplementary figure 5) while increasing model collinearity (Supplementary figure 1), thereby increasing ambiguity in the attribution of spatial variation in the surface-area-to-volume ratio.
+The other reason researchers may choose to include age or sex in models is to increase the precision of the estimate of $\beta_{Lat}$. In our case study, including these covariates often improved precision, although in rare cases precision decreased (for the reasons discussed in Box 2). For example, adding age to European Nightjar and Eastern Whip-poor-will models with $\text{wing}^2/\text{mass}$ as the response variable explained negligible variance (Supplementary Figure 6) while increasing collinearity among predictors (Supplementary Figure 1), thereby increasing uncertainty in the attribution of spatial variation in the surface-area-to-volume ratio.
+
+Despite gains in precision with covariates, t-statistics changed little because the estimated effect sizes were also modestly reduced. Importantly, the magnitude or significance of test statistics should not guide decisions regarding covariate inclusion. Rather, covariates should be included when required to obtain the causal estimand or when they meaningfully improve precision without introducing bias. Based on our causal assumptions, including age and sex produced estimates that were both less biased and, in most cases, more precise. Thus, although the estimated effect of latitude was often slightly smaller after adjustment, we have greater confidence that the resulting estimates more closely reflect the relationship of interest.
 
 ## Practical recommendations
 
 Robust inference regarding Bergmann's rule requires deliberate choices about trait selection, model structure, and interpretation. In addition to general causal modeling recommendations [@arifApplyingStructuralCausal2023; @dudneyCausalInferenceFramework2024; @siegelFoundationsFutureDirections2025], the following steps provide a practical framework for studies examining relationships between body size and environmental gradients.
 
-**1) Identify candidate traits that could represent body size.** Begin by listing all morphological measurements available that plausibly reflect organismal size or structure. This may include linear or volumetric traits, as well as composite or derived indices.
+**1) Identify candidate traits that could represent body size.** Begin by listing all morphological measurements available that plausibly reflect organismal size. This may include linear or volumetric traits, as well as composite or derived indices.
 
-**2) Evaluate each trait across the conceptual axes in Box 1.** This assessment clarifies what biological processes each metric is likely capturing and highlights trade-offs between interpretability, thermoregulatory relevance, and temporal stability.
+**2) Evaluate each trait across the conceptual axes in Box 1 and formulate *a priori* expectations.** This assessment clarifies what biological processes each metric is likely capturing and highlights trade-offs between interpretability, thermoregulatory relevance, and temporal stability. Traits with high thermoregulatory relevance, weak alternative functional constraints, and high temporal stability are generally expected to provide the clearest signals of environment-size relationships. Conversely, traits with strong competing functional demands may exhibit weaker, nonlinear, or otherwise unexpected responses to environmental gradients.
 
-**3) Select a suite of traits.** This should include at least one linear and one volumetric metric. Fixed metrics with high thermoregulatory relevance are preferred. Derived traits can also be included but should be considered supplementary to the traits that compose them.
+**3) Select a suite of traits.** This should include at least one linear and one volumetric metric. Derived traits (e.g., PCA axes or ratios) can provide useful complementary perspectives but should be considered supplementary to the first-order traits from which they are constructed.
 
 **4) Define the causal estimand and articulate causal assumptions.** Explicitly state the question of interest, the corresponding estimand (e.g., $\beta_{Lat}$), which covariates should be included in the model either to identify the estimand or increase the precision with which it is estimated. Use causal reasoning, ideally represented visually through DAGs or described clearly in text, to identify:
 
--   potential confounders requiring adjustment,
+- potential confounders requiring adjustment,
 
--   variables that should not be conditioned on due to collider or mediator structures,
+- variables that should not be conditioned on due to collider or mediator structures,
 
--   variables that influence precision rather than bias
+- variables that influence precision rather than bias
 
 5\) **Assess DAG-data consistency.** A DAG implies a set of conditional independencies that should be approximately supported in the observed data if both the DAG and the collected data reasonably reflect the underlying data-generating process [@arifApplyingStructuralCausal2023; @pearlCausality2009]. Where feasible, researchers should interrogate these implications using tools such as *dagitty* [@textorRobustCausalInference2016]. This was not possible in our case because site is unordered, categorical, and contained many levels [@ankanTestingGraphicalCausal2021]. In cases where DAG-data consistency cannot be formally evaluated, it is still important to inspect how candidate covariates vary across environmental gradients. In studies of Bergmann’s rule, this will most commonly involve examining how age, sex, or other candidate covariates vary across latitude or temperature. Even theoretically plausible confounders cannot meaningfully bias estimates if they show negligible association with the environmental gradient in the study system. Conversely, strong spatial structure in covariates highlights the need for careful causal adjustment.
 
-**6) Build models to obtain the estimand of interest.** After causal structure is addressed, additional covariates may be included to improve precision or enhance model fit, provided they do not introduce bias. Model comparison tools can guide statistical performance, but causal logic should determine the minimal adjustment set.
+**6) Build models to obtain the estimand.** After causal structure is addressed, additional covariates may be included to improve precision or enhance model fit, provided they do not introduce bias. Model comparison tools can guide statistical performance, but causal logic should determine the minimal adjustment set.
 
-**7) Interpret multi-metric results along a continuum rather than dichotomously.** Viewing adherence to Bergmann’s rule as a continuum of support rather than a binary outcome better reflects the multidimensional nature of morphology and the multiple selective pressures shaping it. Interpret patterns in terms of the
+7\) **Interpret multi-metric results along a continuum rather than dichotomously.** Viewing adherence to Bergmann's rule as a continuum of support rather than a binary outcome better reflects the multidimensional nature of morphology and the multiple selective pressures shaping it. Interpretation should consider:
 
--   strength and direction of effects,
+- the strength and direction of effects,
 
--   consistency across metrics,
+- consistency across first-order traits,
 
--   alignment with biological expectations based on selection regimes (axis 2) and trait lability (axis 3)
+- alignment with *a priori* expectations based on the conceptual axes in Box 1,
+
+- and how derived traits alter or refine interpretation of the underlying measurements.
+
+Conflicting results among metrics may provide insight into the biological processes influencing particular traits.
 
 ## Generalizability
 
 We believe that the general framework presented here extends beyond Bergmann’s rule and body size. It is readily applicable to other ecogeographical rules involving morphology, such as Foster’s rule, which examines body size divergence between mainland and island populations, and Allen’s rule, which examines appendage length relative to body size [@symondsItsAllRelative2025]. More broadly, however, the framework is transferable beyond morphology to any trait varying along environmental gradients.
 
-For example, Bogert’s rule, or the thermal melanism hypothesis, posits that darker individuals (low reflectance) are favored in cooler climates because they absorb heat more readily and reach higher equilibrium temperatures than lighter individuals [@bogertThermoregulationReptilesFactor1949; @clusellatrullasThermalMelanismEctotherms2007]. As an illustration of the framework’s generality, we classified pigmentation traits used in avian studies of Bogert’s rule along the conceptual axes outlined in Box 1 (Supplementary Figure 8). Reflectance measurements from dorsal plumage, ventral plumage, the head, and bare parts (e.g., bill, tarsus) differ in thermoregulatory relevance, the strength of alternative selection pressures, and temporal lability. Consequently, the same considerations that complicate trait selection in Bergmann’s rule studies also apply to studies of thermal melanism. Once traits have been positioned along the conceptual axes in Box 1, the remaining seven practical steps are readily transferable across ecogeographical rules.
+For example, Bogert’s rule, or the thermal melanism hypothesis, posits that darker individuals (low reflectance) are favored in cooler climates because they absorb heat more readily and reach higher equilibrium temperatures than lighter individuals [@bogertThermoregulationReptilesFactor1949; @clusellatrullasThermalMelanismEctotherms2007]. As an illustration of the framework’s generality, we classified pigmentation traits used in avian studies of Bogert’s rule along the conceptual axes outlined in Box 1 (Supplementary Figure 9). Reflectance measurements from dorsal plumage, ventral plumage, the head, and bare parts (e.g., bill, tarsus) differ in thermoregulatory relevance, the strength of alternative selection pressures, and temporal lability. Consequently, the same considerations that complicate trait selection in Bergmann’s rule studies also apply to studies of thermal melanism. Once traits have been positioned along the conceptual axes in Box 1, the remaining seven practical steps are readily transferable across ecogeographical rules.
 
 ## Conclusions
 
-Tests of Bergmann’s rule often proceed as though “body size” were a singular, unambiguous quantity. This case study demonstrates that while inference can be robust across commonly used metrics, robustness is neither guaranteed nor uniform. Linear, volumetric, and derived traits in nightjars generally yielded consistent responses across latitudinal gradients except for one species x size metric combination that is more strongly shaped by non-thermal functional constraints. Similarly, the inclusion of covariates altered our conclusions in one species x size metric combination. These examples highlight how both metric choice and statistical modeling are important considerations in studies examining adherence to Bergmann's rule, and that related decisions should be explicitly justified. Explicit alignment between the research question, research design, the selection of body size traits, and model specification will yield more transparent and comparable inference across systems. Rather than asking whether a species “follows” Bergmann’s rule, future work will benefit from examining environment-morphology relationships across multiple traits, interpreting support along a continuum rather than a dichotomy.
+Tests of Bergmann’s rule often proceed as though “body size” were a singular, unambiguous quantity. This case study demonstrates that while inference can be robust across commonly used metrics, robustness is neither guaranteed nor uniform. Linear, volumetric, and derived traits in nightjars generally yielded consistent responses across latitudinal gradients except for one species x size metric combination that is more strongly shaped by non-thermal functional constraints. Similarly, the inclusion of covariates altered our conclusions in one species x size metric combination. These examples highlight how both metric choice and statistical modeling are important considerations in studies examining adherence to Bergmann's rule, and that related decisions should be transparently justified. Explicit alignment between the research question, research design, the selection of body size traits, and model specification will yield more transparent and comparable inference across systems. Rather than asking whether a species “follows” Bergmann’s rule, future work will benefit from examining environment-morphology relationships across multiple traits, interpreting support along a continuum rather than a dichotomy.
 
 # Acknowledgements
 
@@ -441,6 +419,6 @@ This manuscript grew out of an undergraduate mentorship project (Research Experi
 
 # Data availability
 
-The data can be downloaded from Dryad [@skinnerDataEnvironmentalGeographic2025]. All analyses and figures can be reproduced by downloading the following github repository.
+The data can be downloaded from Dryad [@skinnerDataEnvironmentalGeographic2025]. All analyses and figures can be reproduced by downloading the github repository (for now, I have included the .qmd file with code as a 'supplementary file for review').
 
 {{< pagebreak >}}
